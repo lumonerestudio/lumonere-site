@@ -29,11 +29,9 @@
       box-sizing: border-box;
     }
 
-
     html {
       background: #080808;
     }
-
 
     body {
       margin: 0;
@@ -72,7 +70,8 @@
 
       margin: 0 auto;
 
-      padding: 28px 18px 60px;
+      padding:
+        28px 18px 60px;
 
     }
 
@@ -111,11 +110,12 @@
 
       margin: 0;
 
-      font-size: clamp(
-        28px,
-        7vw,
-        48px
-      );
+      font-size:
+        clamp(
+          28px,
+          7vw,
+          48px
+        );
 
       font-weight: 700;
 
@@ -133,7 +133,8 @@
 
     .client-name {
 
-      margin: 12px 0 4px;
+      margin:
+        12px 0 4px;
 
       font-size: 20px;
 
@@ -155,7 +156,8 @@
 
     .event-date {
 
-      margin: 8px 0 0;
+      margin:
+        8px 0 0;
 
       opacity: .5;
 
@@ -281,7 +283,8 @@
     @keyframes spin {
 
       to {
-        transform: rotate(360deg);
+        transform:
+          rotate(360deg);
       }
 
     }
@@ -443,6 +446,8 @@
 
       cursor: pointer;
 
+      z-index: 10000;
+
     }
 
 
@@ -471,6 +476,8 @@
       font-size: 14px;
 
       font-weight: 600;
+
+      z-index: 10000;
 
     }
 
@@ -644,6 +651,7 @@
 
   <script>
 
+
     /* =====================================================
        SUPABASE CONFIG
     ===================================================== */
@@ -661,6 +669,11 @@
         SUPABASE_URL,
         SUPABASE_PUBLISHABLE_KEY
       );
+
+
+    console.log(
+      "Lumonere Studio Supabase connected"
+    );
 
 
     /* =====================================================
@@ -883,7 +896,7 @@
 
           showMessage(
             "Unable to Load Gallery",
-            "There was a problem checking this gallery code. Please try again.",
+            "There was a problem checking this gallery code.",
             "⚠️"
           );
 
@@ -913,9 +926,9 @@
           data[0];
 
 
-        /*
-         * Active check
-         */
+        /* =========================
+           ACTIVE CHECK
+        ========================= */
 
         if (
           gallery.active === false
@@ -932,9 +945,9 @@
         }
 
 
-        /*
-         * Expiration check
-         */
+        /* =========================
+           EXPIRATION CHECK
+        ========================= */
 
         if (
           gallery.expires_at
@@ -966,31 +979,39 @@
         }
 
 
-        /*
-         * Gallery information
-         */
+        /* =========================
+           GALLERY INFORMATION
+        ========================= */
 
         galleryInfo.innerHTML = `
 
           <div class="client-name">
+
             ${escapeHtml(
               gallery.client_name
             )}
+
           </div>
 
+
           <div class="event-name">
+
             ${escapeHtml(
               gallery.event_name
             )}
+
           </div>
+
 
           ${
             gallery.event_date
               ? `
                 <div class="event-date">
+
                   ${formatDate(
                     gallery.event_date
                   )}
+
                 </div>
               `
               : ""
@@ -999,10 +1020,9 @@
         `;
 
 
-        /*
-         * Load Drive photos through
-         * Supabase Edge Function
-         */
+        /* =========================
+           LOAD PHOTOS
+        ========================= */
 
         await loadDrivePhotos(
           gallery
@@ -1085,7 +1105,7 @@
        IMPORTANT:
        NO GOOGLE API KEY HERE.
        
-       The Edge Function handles the
+       The Edge Function handles
        Google Drive API securely.
     ===================================================== */
 
@@ -1142,7 +1162,15 @@
 
 
         /*
-         * Call Supabase Edge Function
+         * IMPORTANT:
+         *
+         * Edge Function expects:
+         *
+         * body.folderId
+         *
+         * NOT:
+         *
+         * body.folder_id
          */
 
         const {
@@ -1155,7 +1183,7 @@
               DRIVE_FUNCTION,
               {
                 body: {
-                  folder_id:
+                  folderId:
                     folderId
                 }
               }
@@ -1191,10 +1219,11 @@
 
 
         /*
-         * Accept several possible response formats.
+         * Edge Function currently returns:
          *
-         * This makes the frontend more tolerant
-         * of the current Edge Function response.
+         * {
+         *   files: [...]
+         * }
          */
 
         let files = [];
@@ -1301,8 +1330,20 @@
     ) {
 
       /*
-       * Prefer URLs supplied by the
-       * Edge Function.
+       * Google Drive API thumbnail
+       */
+
+      if (
+        file.thumbnailLink
+      ) {
+
+        return file.thumbnailLink;
+
+      }
+
+
+      /*
+       * Other possible formats
        */
 
       if (
@@ -1351,9 +1392,8 @@
 
 
       /*
-       * If Edge Function returns only
-       * the Google Drive file ID,
-       * use Drive thumbnail URL.
+       * Google Drive thumbnail
+       * using file ID
        */
 
       if (
@@ -1386,6 +1426,15 @@
     ) {
 
       if (
+        file.webContentLink
+      ) {
+
+        return file.webContentLink;
+
+      }
+
+
+      if (
         file.download_url
       ) {
 
@@ -1399,15 +1448,6 @@
       ) {
 
         return file.downloadUrl;
-
-      }
-
-
-      if (
-        file.webContentLink
-      ) {
-
-        return file.webContentLink;
 
       }
 
@@ -1437,6 +1477,87 @@
 
 
       return "";
+
+    }
+
+
+    /* =====================================================
+       GET LARGE IMAGE URL
+    ===================================================== */
+
+    function getLargeImageUrl(
+      file
+    ) {
+
+      /*
+       * Use Drive thumbnail
+       * at larger resolution.
+       */
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w2000"
+        );
+
+      }
+
+
+      if (
+        file.full_url
+      ) {
+
+        return file.full_url;
+
+      }
+
+
+      if (
+        file.fullUrl
+      ) {
+
+        return file.fullUrl;
+
+      }
+
+
+      if (
+        file.image_url
+      ) {
+
+        return file.image_url;
+
+      }
+
+
+      if (
+        file.imageUrl
+      ) {
+
+        return file.imageUrl;
+
+      }
+
+
+      if (
+        file.url
+      ) {
+
+        return file.url;
+
+      }
+
+
+      return getImageUrl(
+        file
+      );
 
     }
 
@@ -1506,8 +1627,8 @@
 
 
           /*
-           * If the Edge Function gives
-           * an alternate URL, use it.
+           * Fallback if thumbnail
+           * fails to load.
            */
 
           image.onerror =
@@ -1523,15 +1644,23 @@
 
 
               const fallback =
-                getDownloadUrl(
-                  file
-                );
+                file.id
+                  ? (
+                      "https://drive.google.com/thumbnail" +
+                      "?id=" +
+                      encodeURIComponent(
+                        file.id
+                      ) +
+                      "&sz=w2000"
+                    )
+                  : getDownloadUrl(
+                      file
+                    );
 
 
               if (
                 !fallback ||
-                fallback ===
-                image.src
+                fallback === image.src
               ) {
 
                 return;
@@ -1640,7 +1769,7 @@
 
 
     /* =====================================================
-       LIGHTBOX
+       OPEN LIGHTBOX
     ===================================================== */
 
     function openLightbox(
@@ -1671,7 +1800,7 @@
 
 
       lightboxDownload.href =
-        downloadUrl;
+        downloadUrl || imageUrl;
 
 
       lightbox.classList.add(
@@ -1687,82 +1816,6 @@
 
       document.body.style.overflow =
         "hidden";
-
-    }
-
-
-    /* =====================================================
-       LARGE IMAGE URL
-    ===================================================== */
-
-    function getLargeImageUrl(
-      file
-    ) {
-
-      if (
-        file.full_url
-      ) {
-
-        return file.full_url;
-
-      }
-
-
-      if (
-        file.fullUrl
-      ) {
-
-        return file.fullUrl;
-
-      }
-
-
-      if (
-        file.image_url
-      ) {
-
-        return file.image_url;
-
-      }
-
-
-      if (
-        file.imageUrl
-      ) {
-
-        return file.imageUrl;
-
-      }
-
-
-      if (
-        file.url
-      ) {
-
-        return file.url;
-
-      }
-
-
-      if (
-        file.id
-      ) {
-
-        return (
-          "https://drive.google.com/thumbnail" +
-          "?id=" +
-          encodeURIComponent(
-            file.id
-          ) +
-          "&sz=w2000"
-        );
-
-      }
-
-
-      return getImageUrl(
-        file
-      );
 
     }
 
@@ -1947,6 +2000,7 @@
     ===================================================== */
 
     loadGallery();
+
 
   </script>
 
