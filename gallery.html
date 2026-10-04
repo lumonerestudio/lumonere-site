@@ -4,168 +4,266 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Lumonere Gallery</title>
-  <meta name="description" content="Lumonere Studio private photo gallery">
+  <meta name="theme-color" content="#080808">
+  <meta
+    name="description"
+    content="Lumonere Studio Photo Gallery"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Lumonere Studio Gallery</title>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
+    html {
+      background: #080808;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f7f7f7;
-      color: #222;
+      background:
+        radial-gradient(
+          circle at top,
+          #202020 0%,
+          #0d0d0d 45%,
+          #080808 100%
+        );
+      color: #fff;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      min-height: 100vh;
     }
 
-    .container {
-      width: min(1100px, 92%);
-      margin: auto;
+    .gallery-page {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
     }
 
-    header {
-      padding: 35px 0 20px;
+    /* =========================
+       HEADER
+    ========================= */
+
+    .gallery-header {
       text-align: center;
+      margin-bottom: 30px;
     }
 
-    .logo {
-      width: 90px;
-      height: 90px;
-      object-fit: contain;
+    .brand {
+      font-size: 13px;
+      letter-spacing: 4px;
+      font-weight: 600;
+      opacity: .65;
+      text-transform: uppercase;
       margin-bottom: 10px;
     }
 
-    h1 {
+    .gallery-title {
       margin: 0;
-      font-size: 28px;
-      letter-spacing: 1px;
+      font-size: clamp(28px, 7vw, 48px);
+      font-weight: 700;
+      letter-spacing: -1px;
     }
 
-    .tagline {
-      margin-top: 8px;
-      color: #777;
+    .gallery-title span {
+      font-weight: 300;
+    }
+
+    .client-name {
+      margin: 12px 0 4px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .event-name {
+      margin: 0;
+      opacity: .65;
       font-size: 14px;
     }
 
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 25px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      margin: 25px 0;
+    .event-date {
+      margin: 8px 0 0;
+      opacity: .5;
+      font-size: 13px;
     }
 
-    .code-box {
-      display: flex;
+    /* =========================
+       GALLERY
+    ========================= */
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      max-width: 550px;
-      margin: 20px auto 0;
     }
 
-    input {
-      flex: 1;
-      min-width: 0;
-      padding: 15px;
-      border: 1px solid #ddd;
+    .photo-card {
+      position: relative;
+      overflow: hidden;
       border-radius: 10px;
-      font-size: 16px;
-      text-transform: uppercase;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #222;
-    }
-
-    button {
-      padding: 15px 22px;
-      border: none;
-      border-radius: 10px;
-      background: #222;
-      color: white;
-      font-size: 15px;
+      background: #151515;
+      aspect-ratio: 1 / 1;
       cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.9;
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform .3s ease;
     }
+
+    .photo-card:hover img {
+      transform: scale(1.04);
+    }
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      opacity: .7;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(255,255,255,.15);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================
+       EMPTY / ERROR
+    ========================= */
 
     .message {
       text-align: center;
-      margin-top: 15px;
-      min-height: 22px;
-      color: #777;
+      padding: 80px 20px;
     }
 
-    .error {
-      color: #c62828;
+    .message-icon {
+      font-size: 42px;
+      margin-bottom: 15px;
     }
 
-    .gallery-info {
+    .message h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .message p {
+      margin: 0;
+      opacity: .55;
+      font-size: 14px;
+    }
+
+    /* =========================
+       LIGHTBOX
+    ========================= */
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.94);
       display: none;
-      text-align: center;
-    }
-
-    .gallery-info h2 {
-      margin-bottom: 8px;
-    }
-
-    .event-date {
-      color: #777;
-      margin-bottom: 5px;
-    }
-
-    .drive-link {
-      display: inline-block;
-      margin-top: 15px;
-      color: #222;
-      text-decoration: underline;
-    }
-
-    .photos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 25px;
-    }
-
-    .photo-placeholder {
-      aspect-ratio: 1 / 1;
-      background: #eee;
-      border-radius: 12px;
-      display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
-      font-size: 13px;
+      z-index: 9999;
+      padding: 20px;
     }
 
-    footer {
-      text-align: center;
-      padding: 35px 0;
-      color: #999;
-      font-size: 13px;
+    .lightbox.active {
+      display: flex;
     }
+
+    .lightbox-image {
+      max-width: 95vw;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      color: white;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .lightbox-download {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      color: black;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .gallery-footer {
+      text-align: center;
+      margin-top: 45px;
+      opacity: .35;
+      font-size: 12px;
+      letter-spacing: .5px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
 
     @media (max-width: 600px) {
-      .code-box {
-        flex-direction: column;
+
+      .gallery-page {
+        padding: 22px 10px 45px;
       }
 
-      button {
-        width: 100%;
-      }
-
-      .photos {
+      .photo-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
       }
 
-      h1 {
-        font-size: 24px;
+      .photo-card {
+        border-radius: 7px;
+      }
+
+      .gallery-title {
+        font-size: 32px;
       }
     }
   </style>
@@ -173,84 +271,84 @@
 
 <body>
 
-  <header>
-    <div class="container">
+  <main class="gallery-page">
 
-      <!-- Change this path if your logo has a different filename -->
-      <img
-        src="assets/lumonere-logo.png"
-        alt="Lumonere Studio"
-        class="logo"
-        onerror="this.style.display='none'"
-      >
+    <header class="gallery-header">
 
-      <h1>Lumonere Studio</h1>
-      <div class="tagline">Making Your Moments Photo Worthy.</div>
-
-    </div>
-  </header>
-
-  <main class="container">
-
-    <section class="card">
-
-      <h2 style="text-align:center;">Your Photo Gallery</h2>
-
-      <p style="text-align:center;color:#777;">
-        Enter the gallery code provided by Lumonere Studio.
-      </p>
-
-      <div class="code-box">
-        <input
-          type="text"
-          id="galleryCode"
-          placeholder="Enter gallery code"
-          maxlength="50"
-          autocomplete="off"
-        >
-
-        <button id="openGallery">
-          Open Gallery
-        </button>
+      <div class="brand">
+        LUMONERE STUDIO
       </div>
 
-      <div id="message" class="message"></div>
+      <h1 class="gallery-title">
+        PHOTO <span>GALLERY</span>
+      </h1>
 
-    </section>
+      <div id="gallery-info"></div>
 
-    <section id="galleryInfo" class="card gallery-info">
+    </header>
 
-      <h2 id="clientName"></h2>
 
-      <div id="eventName"></div>
+    <section id="gallery-content">
 
-      <div id="eventDate" class="event-date"></div>
-
-      <a
-        id="driveLink"
-        class="drive-link"
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open Google Drive
-      </a>
-
-      <div id="photos" class="photos">
-
-        <div class="photo-placeholder">
-          Photos will appear here
-        </div>
-
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Loading your gallery...</div>
       </div>
 
     </section>
+
+
+    <footer class="gallery-footer">
+      Making Your Moments Photo Worthy.
+    </footer>
 
   </main>
 
-  <footer>
-    © Lumonere Studio · Making Your Moments Photo Worthy.
-  </footer>
+
+  <!-- =========================
+       LIGHTBOX
+  ========================= -->
+
+  <div
+    id="lightbox"
+    class="lightbox"
+    aria-hidden="true"
+  >
+
+    <button
+      id="lightbox-close"
+      class="lightbox-close"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <img
+      id="lightbox-image"
+      class="lightbox-image"
+      src=""
+      alt="Gallery photo"
+    >
+
+    <a
+      id="lightbox-download"
+      class="lightbox-download"
+      href=""
+      target="_blank"
+      rel="noopener noreferrer"
+      download
+    >
+      Download Photo
+    </a>
+
+  </div>
+
+
+  <!-- =========================
+       SUPABASE
+  ========================= -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
   <script>
@@ -261,164 +359,370 @@
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
 
 
-    const codeInput = document.getElementById("galleryCode");
-    const openButton = document.getElementById("openGallery");
-    const message = document.getElementById("message");
+    /* =========================
+       GET GALLERY CODE
+    ========================= */
 
-    const galleryInfo = document.getElementById("galleryInfo");
-    const clientName = document.getElementById("clientName");
-    const eventName = document.getElementById("eventName");
-    const eventDate = document.getElementById("eventDate");
-    const driveLink = document.getElementById("driveLink");
+    const params =
+      new URLSearchParams(window.location.search);
 
-
-    function showMessage(text, isError = false) {
-      message.textContent = text;
-      message.className = isError
-        ? "message error"
-        : "message";
-    }
+    const galleryCode =
+      params.get("code");
 
 
-    async function loadGallery(code) {
+    /* =========================
+       ELEMENTS
+    ========================= */
 
-      code = code.trim().toUpperCase();
+    const galleryInfo =
+      document.getElementById("gallery-info");
 
-      if (!code) {
-        showMessage("Please enter your gallery code.", true);
+    const galleryContent =
+      document.getElementById("gallery-content");
+
+    const lightbox =
+      document.getElementById("lightbox");
+
+    const lightboxImage =
+      document.getElementById("lightbox-image");
+
+    const lightboxDownload =
+      document.getElementById("lightbox-download");
+
+    const lightboxClose =
+      document.getElementById("lightbox-close");
+
+
+    /* =========================
+       LOAD GALLERY
+    ========================= */
+
+    async function loadGallery() {
+
+      if (!galleryCode) {
+
+        showMessage(
+          "Gallery Code Required",
+          "Please open your Lumonere Studio gallery link."
+        );
+
         return;
       }
 
-      showMessage("Checking gallery...");
-      galleryInfo.style.display = "none";
 
-      try {
+      console.log(
+        "Loading Lumonere Gallery:",
+        galleryCode
+      );
 
-        const { data, error } = await supabaseClient
-          .rpc("get_gallery_by_code", {
-            p_code: code
-          });
 
-        console.log("Gallery data:", data);
-        console.log("Gallery error:", error);
-
-        if (error) {
-          console.error(error);
-          showMessage(
-            "Unable to connect to the gallery service.",
-            true
-          );
-          return;
-        }
-
-        if (!data || data.length === 0) {
-          showMessage(
-            "Gallery not found, expired, or inactive.",
-            true
-          );
-          return;
-        }
-
-        const gallery = data[0];
-
-        clientName.textContent =
-          gallery.client_name || "Lumonere Studio Client";
-
-        eventName.textContent =
-          gallery.event_name || "";
-
-        if (gallery.event_date) {
-
-          const date = new Date(
-            gallery.event_date + "T00:00:00"
-          );
-
-          eventDate.textContent =
-            date.toLocaleDateString("en-PH", {
-              year: "numeric",
-              month: "long",
-              day: "numeric"
-            });
-
-        } else {
-
-          eventDate.textContent = "";
-
-        }
-
-        if (gallery.drive_url) {
-
-          driveLink.href = gallery.drive_url;
-          driveLink.style.display = "inline-block";
-
-        } else {
-
-          driveLink.style.display = "none";
-
-        }
-
-        galleryInfo.style.display = "block";
-
-        showMessage("");
-
-        // Put the code in the URL so the gallery
-        // can be opened directly later.
-        const newUrl =
-          window.location.pathname +
-          "?code=" +
-          encodeURIComponent(code);
-
-        window.history.replaceState({}, "", newUrl);
-
-      } catch (err) {
-
-        console.error(err);
-
-        showMessage(
-          "Something went wrong while loading the gallery.",
-          true
+      const { data, error } =
+        await supabaseClient.rpc(
+          "get_gallery_by_code",
+          {
+            p_code: galleryCode
+          }
         );
 
+
+      console.log(
+        "Gallery DATA:",
+        data
+      );
+
+      console.log(
+        "Gallery ERROR:",
+        error
+      );
+
+
+      if (error) {
+
+        showMessage(
+          "Something went wrong",
+          "We couldn't load this gallery."
+        );
+
+        return;
       }
+
+
+      if (!data || data.length === 0) {
+
+        showMessage(
+          "Gallery Not Found",
+          "Please check your gallery code."
+        );
+
+        return;
+      }
+
+
+      const gallery = data[0];
+
+
+      /* =========================
+         ACTIVE CHECK
+      ========================= */
+
+      if (gallery.active === false) {
+
+        showMessage(
+          "Gallery Unavailable",
+          "This gallery is currently inactive."
+        );
+
+        return;
+      }
+
+
+      /* =========================
+         EXPIRATION CHECK
+      ========================= */
+
+      if (gallery.expires_at) {
+
+        const expiration =
+          new Date(gallery.expires_at);
+
+        if (expiration < new Date()) {
+
+          showMessage(
+            "Gallery Expired",
+            "This gallery is no longer available."
+          );
+
+          return;
+        }
+      }
+
+
+      /* =========================
+         SHOW INFO
+      ========================= */
+
+      galleryInfo.innerHTML = `
+
+        <div class="client-name">
+          ${escapeHtml(gallery.client_name)}
+        </div>
+
+        <div class="event-name">
+          ${escapeHtml(gallery.event_name)}
+        </div>
+
+        ${
+          gallery.event_date
+            ? `
+              <div class="event-date">
+                ${formatDate(gallery.event_date)}
+              </div>
+            `
+            : ""
+        }
+
+      `;
+
+
+      /*
+       * TEMPORARY:
+       * Until the Google Drive photo bridge
+       * is connected, show the Drive button.
+       */
+
+      galleryContent.innerHTML = `
+
+        <div class="message">
+
+          <div class="message-icon">
+            📸
+          </div>
+
+          <h2>
+            Your gallery is ready
+          </h2>
+
+          <p>
+            Your photos are currently stored
+            in your Lumonere Studio gallery.
+          </p>
+
+          <br>
+
+          <a
+            class="lightbox-download"
+            style="
+              position: static;
+              transform: none;
+              display: inline-block;
+            "
+            href="${escapeAttribute(gallery.drive_url)}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            📷 Open Photos
+          </a>
+
+        </div>
+
+      `;
 
     }
 
 
-    openButton.addEventListener("click", () => {
-      loadGallery(codeInput.value);
-    });
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    function showMessage(title, message) {
+
+      galleryContent.innerHTML = `
+
+        <div class="message">
+
+          <div class="message-icon">
+            📸
+          </div>
+
+          <h2>
+            ${escapeHtml(title)}
+          </h2>
+
+          <p>
+            ${escapeHtml(message)}
+          </p>
+
+        </div>
+
+      `;
+
+    }
 
 
-    codeInput.addEventListener("keydown", (event) => {
+    /* =========================
+       LIGHTBOX
+    ========================= */
 
-      if (event.key === "Enter") {
-        loadGallery(codeInput.value);
-      }
+    function openLightbox(imageUrl) {
 
-    });
+      lightboxImage.src = imageUrl;
+
+      lightboxDownload.href = imageUrl;
+
+      lightbox.classList.add("active");
+
+      lightbox.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+      document.body.style.overflow = "hidden";
+
+    }
 
 
-    // Automatically open gallery if URL contains:
-    // gallery.html?code=TEST123
+    function closeLightbox() {
 
-    const params = new URLSearchParams(
-      window.location.search
+      lightbox.classList.remove("active");
+
+      lightbox.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      lightboxImage.src = "";
+
+      document.body.style.overflow = "";
+
+    }
+
+
+    lightboxClose.addEventListener(
+      "click",
+      closeLightbox
     );
 
-    const urlCode = params.get("code");
 
-    if (urlCode) {
+    lightbox.addEventListener(
+      "click",
+      function(event) {
 
-      codeInput.value = urlCode;
-      loadGallery(urlCode);
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+
+      }
+    );
+
+
+    document.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (event.key === "Escape") {
+          closeLightbox();
+        }
+
+      }
+    );
+
+
+    /* =========================
+       HELPERS
+    ========================= */
+
+    function escapeHtml(value) {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+        return "";
+      }
+
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
     }
+
+
+    function escapeAttribute(value) {
+
+      return escapeHtml(value);
+
+    }
+
+
+    function formatDate(date) {
+
+      return new Date(date).toLocaleDateString(
+        "en-PH",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }
+      );
+
+    }
+
+
+    /* =========================
+       START
+    ========================= */
+
+    loadGallery();
 
   </script>
 
