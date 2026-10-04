@@ -36,9 +36,8 @@
 
 
     body {
-      margin: 0;
 
-      min-height: 100vh;
+      margin: 0;
 
       background:
         radial-gradient(
@@ -57,6 +56,9 @@
         Roboto,
         Arial,
         sans-serif;
+
+      min-height: 100vh;
+
     }
 
 
@@ -229,6 +231,14 @@
 
       object-fit: cover;
 
+      /*
+       * Important:
+       * Don't blur the image with browser smoothing
+       * more than necessary.
+       */
+
+      image-rendering: auto;
+
       transition:
         transform .3s ease;
 
@@ -285,8 +295,10 @@
     @keyframes spin {
 
       to {
+
         transform:
           rotate(360deg);
+
       }
 
     }
@@ -675,6 +687,7 @@
 
   <script>
 
+
     /* =====================================================
        SUPABASE CONFIG
     ===================================================== */
@@ -776,7 +789,7 @@
         <div class="message">
 
           <div class="message-icon">
-            ${escapeHtml(icon)}
+            ${icon}
           </div>
 
           <h2>
@@ -1009,27 +1022,35 @@
         galleryInfo.innerHTML = `
 
           <div class="client-name">
+
             ${escapeHtml(
               gallery.client_name
             )}
+
           </div>
 
 
           <div class="event-name">
+
             ${escapeHtml(
               gallery.event_name
             )}
+
           </div>
 
 
           ${
             gallery.event_date
               ? `
+
                 <div class="event-date">
+
                   ${formatDate(
                     gallery.event_date
                   )}
+
                 </div>
+
               `
               : ""
           }
@@ -1038,7 +1059,7 @@
 
 
         /* =========================
-           LOAD DRIVE PHOTOS
+           LOAD PHOTOS
         ========================= */
 
         await loadDrivePhotos(
@@ -1046,6 +1067,7 @@
         );
 
       }
+
 
       catch (error) {
 
@@ -1119,10 +1141,9 @@
     /* =====================================================
        LOAD DRIVE PHOTOS
        
-       IMPORTANT:
        NO GOOGLE API KEY HERE.
-
-       The Supabase Edge Function handles
+       
+       The Edge Function handles
        Google Drive API securely.
     ===================================================== */
 
@@ -1181,7 +1202,7 @@
         /*
          * IMPORTANT:
          *
-         * Your current Edge Function expects:
+         * Edge Function expects:
          *
          * body.folderId
          */
@@ -1231,9 +1252,13 @@
         }
 
 
-        /* =========================
-           GET FILES
-        ========================= */
+        /*
+         * Edge Function returns:
+         *
+         * {
+         *   files: [...]
+         * }
+         */
 
         let files = [];
 
@@ -1247,6 +1272,7 @@
 
         }
 
+
         else if (
           Array.isArray(
             data?.files
@@ -1258,6 +1284,7 @@
 
         }
 
+
         else if (
           Array.isArray(
             data?.photos
@@ -1268,6 +1295,7 @@
             data.photos;
 
         }
+
 
         else if (
           Array.isArray(
@@ -1310,6 +1338,7 @@
 
       }
 
+
       catch (error) {
 
         console.error(
@@ -1331,6 +1360,41 @@
 
 
     /* =====================================================
+       HIGH RESOLUTION DRIVE THUMBNAIL
+       
+       THIS IS THE IMPORTANT CHANGE.
+       
+       We no longer prioritize thumbnailLink.
+       We first request a large thumbnail directly
+       from Google Drive using the file ID.
+    ===================================================== */
+
+    function getHighResolutionThumbnail(
+      file
+    ) {
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w2000"
+        );
+
+      }
+
+
+      return "";
+
+    }
+
+
+    /* =====================================================
        GET IMAGE URL
     ===================================================== */
 
@@ -1339,24 +1403,60 @@
     ) {
 
       /*
-       * FIRST CHOICE:
-       * Google Drive API thumbnailLink
-       *
-       * This is already working in your gallery.
+       * FIRST:
+       * High-resolution Drive thumbnail.
+       */
+
+      const highRes =
+        getHighResolutionThumbnail(
+          file
+        );
+
+
+      if (
+        highRes
+      ) {
+
+        return highRes;
+
+      }
+
+
+      /*
+       * SECOND:
+       * Google API thumbnailLink.
        */
 
       if (
         file.thumbnailLink
       ) {
 
-        return file.thumbnailLink;
+        const thumbnail =
+          String(
+            file.thumbnailLink
+          );
+
+
+        /*
+         * Try to increase the size
+         * of Google's generated thumbnail.
+         */
+
+        const largerThumbnail =
+          thumbnail.replace(
+            /=s\d+$/,
+            "=s2000"
+          );
+
+
+        return largerThumbnail;
 
       }
 
 
-      /* =========================
-         OTHER POSSIBLE FORMATS
-      ========================= */
+      /*
+       * Other possible formats.
+       */
 
       if (
         file.thumbnail_url
@@ -1399,26 +1499,6 @@
       ) {
 
         return file.url;
-
-      }
-
-
-      /*
-       * LAST RESORT
-       */
-
-      if (
-        file.id
-      ) {
-
-        return (
-          "https://drive.google.com/thumbnail" +
-          "?id=" +
-          encodeURIComponent(
-            file.id
-          ) +
-          "&sz=w1600"
-        );
 
       }
 
@@ -1495,9 +1575,7 @@
     /* =====================================================
        GET LARGE IMAGE URL
        
-       FIXED:
-       Use thumbnailLink instead of rebuilding
-       drive.google.com/thumbnail?id=...
+       Used by the lightbox.
     ===================================================== */
 
     function getLargeImageUrl(
@@ -1505,8 +1583,27 @@
     ) {
 
       /*
-       * Google Drive API thumbnailLink is already
-       * proven to work in the gallery grid.
+       * Use a very large Drive thumbnail.
+       */
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w3000"
+        );
+
+      }
+
+
+      /*
+       * Fallback to thumbnailLink.
        */
 
       if (
@@ -1519,46 +1616,17 @@
           );
 
 
-        /*
-         * Google thumbnail URLs commonly end with:
-         *
-         * =s220
-         * =s400
-         * =s800
-         *
-         * Change it to a larger size.
-         */
-
         const largerThumbnail =
           thumbnail.replace(
             /=s\d+$/,
-            "=s2000"
+            "=s3000"
           );
 
 
-        if (
-          largerThumbnail !==
-          thumbnail
-        ) {
-
-          return largerThumbnail;
-
-        }
-
-
-        /*
-         * If Google returned a thumbnail URL
-         * without the size suffix, just use it.
-         */
-
-        return thumbnail;
+        return largerThumbnail;
 
       }
 
-
-      /* =========================
-         OTHER IMAGE SOURCES
-      ========================= */
 
       if (
         file.full_url
@@ -1601,26 +1669,6 @@
       ) {
 
         return file.url;
-
-      }
-
-
-      /*
-       * LAST RESORT
-       */
-
-      if (
-        file.id
-      ) {
-
-        return (
-          "https://drive.google.com/thumbnail" +
-          "?id=" +
-          encodeURIComponent(
-            file.id
-          ) +
-          "&sz=w1600"
-        );
 
       }
 
@@ -1687,6 +1735,10 @@
             "lazy";
 
 
+          image.decoding =
+            "async";
+
+
           image.alt =
             file.name ||
             "Lumonere Studio photo";
@@ -1697,7 +1749,9 @@
 
 
           /*
-           * Thumbnail fallback
+           * If the high-resolution Drive
+           * thumbnail fails, fall back
+           * to Google's thumbnailLink.
            */
 
           image.onerror =
@@ -1712,19 +1766,38 @@
               }
 
 
-              const fallback =
-                file.id
-                  ? (
-                      "https://drive.google.com/thumbnail" +
-                      "?id=" +
-                      encodeURIComponent(
-                        file.id
-                      ) +
-                      "&sz=w1600"
-                    )
-                  : getDownloadUrl(
-                      file
-                    );
+              let fallback =
+                "";
+
+
+              if (
+                file.thumbnailLink
+              ) {
+
+                const thumbnail =
+                  String(
+                    file.thumbnailLink
+                  );
+
+
+                fallback =
+                  thumbnail.replace(
+                    /=s\d+$/,
+                    "=s2000"
+                  );
+
+              }
+
+
+              if (
+                !fallback &&
+                file.webContentLink
+              ) {
+
+                fallback =
+                  file.webContentLink;
+
+              }
 
 
               if (
@@ -1796,9 +1869,9 @@
       );
 
 
-      /* =========================
-         GOOGLE DRIVE BUTTON
-      ========================= */
+      /*
+       * Google Drive button
+       */
 
       if (
         driveUrl
@@ -1841,10 +1914,6 @@
 
     /* =====================================================
        OPEN LIGHTBOX
-       
-       FIXED:
-       The lightbox now uses the same working
-       thumbnailLink source as the gallery.
     ===================================================== */
 
     function openLightbox(
@@ -1876,10 +1945,6 @@
       }
 
 
-      /*
-       * Store fallback URL.
-       */
-
       lightboxImage.dataset.fallback =
         fallbackUrl || "";
 
@@ -1888,17 +1953,9 @@
         "false";
 
 
-      /*
-       * Load large image.
-       */
-
       lightboxImage.src =
         imageUrl;
 
-
-      /*
-       * Download button.
-       */
 
       lightboxDownload.href =
         downloadUrl ||
@@ -1924,46 +1981,6 @@
 
 
     /* =====================================================
-       LIGHTBOX IMAGE ERROR FALLBACK
-    ===================================================== */
-
-    lightboxImage.addEventListener(
-      "error",
-      function() {
-
-        const fallback =
-          lightboxImage.dataset.fallback;
-
-
-        if (
-          !fallback ||
-          lightboxImage.dataset.fallbackUsed ===
-            "true" ||
-          fallback === lightboxImage.src
-        ) {
-
-          return;
-
-        }
-
-
-        lightboxImage.dataset.fallbackUsed =
-          "true";
-
-
-        /*
-         * Use the same thumbnail that is known
-         * to work in the gallery grid.
-         */
-
-        lightboxImage.src =
-          fallback;
-
-      }
-    );
-
-
-    /* =====================================================
        CLOSE LIGHTBOX
     ===================================================== */
 
@@ -1984,14 +2001,6 @@
         "";
 
 
-      lightboxImage.dataset.fallback =
-        "";
-
-
-      lightboxImage.dataset.fallbackUsed =
-        "false";
-
-
       lightboxDownload.href =
         "";
 
@@ -2000,6 +2009,42 @@
         "";
 
     }
+
+
+    /* =====================================================
+       LIGHTBOX IMAGE FALLBACK
+    ===================================================== */
+
+    lightboxImage.addEventListener(
+      "error",
+      function() {
+
+        const fallback =
+          lightboxImage.dataset.fallback;
+
+
+        if (
+          !fallback ||
+          lightboxImage.dataset.fallbackUsed ===
+            "true" ||
+          fallback ===
+            lightboxImage.src
+        ) {
+
+          return;
+
+        }
+
+
+        lightboxImage.dataset.fallbackUsed =
+          "true";
+
+
+        lightboxImage.src =
+          fallback;
+
+      }
+    );
 
 
     /* =====================================================
@@ -2151,6 +2196,7 @@
     ===================================================== */
 
     loadGallery();
+
 
   </script>
 
