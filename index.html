@@ -106,17 +106,213 @@
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const SUPABASE_URL = "https://xlwcxuicdveqaxeeqawv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
 
 const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
 );
 
 console.log("Lumonere Studio Supabase connected");
+
+
+/* =========================
+   GALLERY LOADER
+========================= */
+
+async function loadGallery() {
+
+  // Get ?code=TEST123 from URL
+  const params = new URLSearchParams(window.location.search);
+  const galleryCode = params.get("code");
+
+  if (!galleryCode) {
+    console.log("No gallery code in URL.");
+    return;
+  }
+
+  console.log("Loading gallery:", galleryCode);
+
+  const { data, error } = await supabaseClient
+    .rpc("get_gallery_by_code", {
+      p_code: galleryCode
+    });
+
+  console.log("Gallery DATA:", data);
+  console.log("Gallery ERROR:", error);
+
+  if (error) {
+    showGalleryMessage(
+      "Something went wrong",
+      "We couldn't load this gallery."
+    );
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    showGalleryMessage(
+      "Gallery not found",
+      "Please check your gallery code."
+    );
+    return;
+  }
+
+  const gallery = data[0];
+
+  // Check active status
+  if (gallery.active === false) {
+    showGalleryMessage(
+      "Gallery unavailable",
+      "This gallery is currently inactive."
+    );
+    return;
+  }
+
+  // Check expiration
+  if (gallery.expires_at) {
+    const expiration = new Date(gallery.expires_at);
+
+    if (expiration < new Date()) {
+      showGalleryMessage(
+        "Gallery expired",
+        "This gallery is no longer available."
+      );
+      return;
+    }
+  }
+
+  // Show gallery
+  showGallery(gallery);
+}
+
+
+/* =========================
+   SHOW GALLERY
+========================= */
+
+function showGallery(gallery) {
+
+  const container = document.createElement("div");
+
+  container.id = "gallery-result";
+
+  container.innerHTML = `
+    <div class="gallery-card">
+
+      <div class="gallery-icon">📸</div>
+
+      <h2>${escapeHtml(gallery.client_name)}</h2>
+
+      <p class="gallery-event">
+        ${escapeHtml(gallery.event_name)}
+      </p>
+
+      ${
+        gallery.event_date
+          ? `<p class="gallery-date">
+              ${formatDate(gallery.event_date)}
+             </p>`
+          : ""
+      }
+
+      <a
+        class="gallery-button"
+        href="${escapeAttribute(gallery.drive_url)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        📷 VIEW MY PHOTOS
+      </a>
+
+      <p class="gallery-code">
+        Gallery Code: ${escapeHtml(gallery.gallery_code)}
+      </p>
+
+    </div>
+  `;
+
+  document.body.appendChild(container);
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function showGalleryMessage(title, message) {
+
+  const container = document.createElement("div");
+
+  container.id = "gallery-result";
+
+  container.innerHTML = `
+    <div class="gallery-card">
+
+      <div class="gallery-icon">📸</div>
+
+      <h2>${escapeHtml(title)}</h2>
+
+      <p class="gallery-event">
+        ${escapeHtml(message)}
+      </p>
+
+    </div>
+  `;
+
+  document.body.appendChild(container);
+}
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function escapeHtml(value) {
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+  return escapeHtml(value);
+}
+
+
+function formatDate(date) {
+
+  return new Date(date).toLocaleDateString(
+    "en-PH",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    }
+  );
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadGallery();
+
 </script>
+
 </body>
 </html>
