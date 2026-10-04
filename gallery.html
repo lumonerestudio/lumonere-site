@@ -29,11 +29,9 @@
       box-sizing: border-box;
     }
 
-
     html {
       background: #080808;
     }
-
 
     body {
       margin: 0;
@@ -565,7 +563,6 @@
     </header>
 
 
-
     <!-- =========================
          GALLERY CONTENT
     ========================= -->
@@ -585,7 +582,6 @@
     </section>
 
 
-
     <footer class="gallery-footer">
 
       Making Your Moments Photo Worthy.
@@ -594,7 +590,6 @@
 
 
   </main>
-
 
 
   <!-- =========================
@@ -638,13 +633,11 @@
   </div>
 
 
-
   <!-- =========================
        SUPABASE
   ========================= -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 
 
   <script>
@@ -668,9 +661,8 @@
       );
 
 
-
     /* =====================================================
-       GET GALLERY CODE
+       GALLERY CODE
     ===================================================== */
 
     const params =
@@ -681,7 +673,6 @@
 
     const galleryCode =
       params.get("code");
-
 
 
     /* =====================================================
@@ -724,7 +715,6 @@
       );
 
 
-
     /* =====================================================
        SHOW MESSAGE
     ===================================================== */
@@ -758,9 +748,8 @@
     }
 
 
-
     /* =====================================================
-       SUPABASE RPC WITH TIMEOUT
+       GET GALLERY FROM SUPABASE
     ===================================================== */
 
     async function getGalleryFromSupabase(
@@ -806,16 +795,11 @@
     }
 
 
-
     /* =====================================================
        LOAD GALLERY
     ===================================================== */
 
     async function loadGallery() {
-
-      /*
-       * No code in URL
-       */
 
       if (!galleryCode) {
 
@@ -830,17 +814,11 @@
       }
 
 
-
       console.log(
         "Loading gallery code:",
         galleryCode
       );
 
-
-
-      /*
-       * Show loading state
-       */
 
       galleryContent.innerHTML = `
 
@@ -857,12 +835,7 @@
       `;
 
 
-
       try {
-
-        /*
-         * Query Supabase
-         */
 
         const result =
           await getGalleryFromSupabase(
@@ -878,7 +851,6 @@
           result?.error;
 
 
-
         console.log(
           "Supabase DATA:",
           data
@@ -891,11 +863,6 @@
         );
 
 
-
-        /*
-         * Supabase returned an error
-         */
-
         if (error) {
 
           console.error(
@@ -906,7 +873,7 @@
 
           showMessage(
             "Unable to Load Gallery",
-            "There was a problem checking this gallery code. Please try again.",
+            "There was a problem checking this gallery code.",
             "⚠️"
           );
 
@@ -914,11 +881,6 @@
 
         }
 
-
-
-        /*
-         * No gallery found
-         */
 
         if (
           !data ||
@@ -937,74 +899,13 @@
         }
 
 
-
-        /*
-         * Get first gallery
-         */
-
         const gallery =
           data[0];
 
 
-
-        /*
-         * Active check
-         */
-
-        if (
-          gallery.active === false
-        ) {
-
-          showMessage(
-            "Gallery Unavailable",
-            "This gallery is currently inactive.",
-            "🔒"
-          );
-
-          return;
-
-        }
-
-
-
-        /*
-         * Expiration check
-         */
-
-        if (
-          gallery.expires_at
-        ) {
-
-          const expiration =
-            new Date(
-              gallery.expires_at
-            );
-
-
-          if (
-            !Number.isNaN(
-              expiration.getTime()
-            ) &&
-            expiration < new Date()
-          ) {
-
-            showMessage(
-              "Gallery Expired",
-              "This gallery is no longer available.",
-              "⏰"
-            );
-
-            return;
-
-          }
-
-        }
-
-
-
-        /*
-         * Show gallery information
-         */
+        /* =========================
+           SHOW GALLERY INFORMATION
+        ========================= */
 
         galleryInfo.innerHTML = `
 
@@ -1043,10 +944,9 @@
         `;
 
 
-
-        /*
-         * Load Google Drive
-         */
+        /* =========================
+           LOAD PHOTOS
+        ========================= */
 
         await loadDrivePhotos(
           gallery
@@ -1061,10 +961,6 @@
           error
         );
 
-
-        /*
-         * If the Supabase request timed out
-         */
 
         if (
           error &&
@@ -1083,7 +979,6 @@
         }
 
 
-
         showMessage(
           "Something Went Wrong",
           "We couldn't load this gallery. Please try again.",
@@ -1093,7 +988,6 @@
       }
 
     }
-
 
 
     /* =====================================================
@@ -1110,12 +1004,6 @@
 
       }
 
-
-      /*
-       * Normal Google Drive folder URL:
-       *
-       * https://drive.google.com/drive/folders/FOLDER_ID
-       */
 
       const match =
         driveUrl.match(
@@ -1135,28 +1023,14 @@
     }
 
 
-
     /* =====================================================
        LOAD GOOGLE DRIVE PHOTOS
-       
-       IMPORTANT:
-       Google Drive API is NO LONGER called directly
-       from the browser.
-
-       Browser
-          ↓
-       Supabase Edge Function
-          ↓
-       Google Drive API
+       THROUGH SUPABASE EDGE FUNCTION
     ===================================================== */
 
     async function loadDrivePhotos(
       gallery
     ) {
-
-      /*
-       * Get folder ID
-       */
 
       const folderId =
         getDriveFolderId(
@@ -1170,11 +1044,6 @@
       );
 
 
-
-      /*
-       * No folder ID
-       */
-
       if (!folderId) {
 
         showMessage(
@@ -1187,11 +1056,6 @@
 
       }
 
-
-
-      /*
-       * Loading photos
-       */
 
       galleryContent.innerHTML = `
 
@@ -1208,32 +1072,75 @@
       `;
 
 
-
       try {
 
-        /*
-         * Call Supabase Edge Function
-         */
+        const response =
+          await fetch(
+            SUPABASE_URL +
+            "/functions/v1/get-gallery-photos",
+            {
+              method: "POST",
 
-        const files =
-          await getDrivePhotosFromEdgeFunction(
-            folderId
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+                folderId: folderId
+              })
+            }
           );
 
 
+        let result;
+
+
+        try {
+
+          result =
+            await response.json();
+
+        }
+
+        catch (jsonError) {
+
+          throw new Error(
+            "Gallery server returned an invalid response."
+          );
+
+        }
+
+
         console.log(
-          "Photos returned by Edge Function:",
+          "Gallery Edge Function response:",
+          result
+        );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            result?.error ||
+            "Unable to load Google Drive photos."
+          );
+
+        }
+
+
+        const files =
+          Array.isArray(result.files)
+            ? result.files
+            : [];
+
+
+        console.log(
+          "Google Drive photos:",
           files
         );
 
 
-
-        /*
-         * No photos
-         */
-
         if (
-          !files ||
           files.length === 0
         ) {
 
@@ -1247,11 +1154,6 @@
 
         }
 
-
-
-        /*
-         * Render photos
-         */
 
         renderPhotos(
           files,
@@ -1280,123 +1182,6 @@
     }
 
 
-
-    /* =====================================================
-       GET DRIVE PHOTOS FROM SUPABASE EDGE FUNCTION
-    ===================================================== */
-
-    async function getDrivePhotosFromEdgeFunction(
-      folderId
-    ) {
-
-      const endpoint =
-        SUPABASE_URL +
-        "/functions/v1/get-gallery-photos";
-
-
-      /*
-       * Browser automatically creates valid JSON.
-       */
-
-      const response =
-        await fetch(
-          endpoint,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify({
-              folderId: folderId
-            })
-          }
-        );
-
-
-
-      /*
-       * Try to parse response
-       */
-
-      let result = null;
-
-
-      try {
-
-        result =
-          await response.json();
-
-      }
-
-      catch (jsonError) {
-
-        throw new Error(
-          "Gallery server returned an invalid response."
-        );
-
-      }
-
-
-
-      console.log(
-        "get-gallery-photos response:",
-        result
-      );
-
-
-
-      /*
-       * Edge Function error
-       */
-
-      if (!response.ok) {
-
-        const errorMessage =
-          result?.details ||
-          result?.error ||
-          `Gallery server error (${response.status}).`;
-
-
-        throw new Error(
-          errorMessage
-        );
-
-      }
-
-
-
-      /*
-       * Expected response:
-       *
-       * {
-       *   "files": [...]
-       * }
-       */
-
-      if (
-        !result ||
-        !Array.isArray(
-          result.files
-        )
-      ) {
-
-        throw new Error(
-          "Gallery server returned an unexpected response."
-        );
-
-      }
-
-
-
-      return result.files;
-
-    }
-
-
-
     /* =====================================================
        RENDER PHOTOS
     ===================================================== */
@@ -1416,11 +1201,6 @@
         "photo-grid";
 
 
-
-      /*
-       * Create photo cards
-       */
-
       files.forEach(
         function(file) {
 
@@ -1432,7 +1212,6 @@
 
           card.className =
             "photo-card";
-
 
 
           const image =
@@ -1450,42 +1229,14 @@
             "Lumonere Studio photo";
 
 
+          image.src =
+            "https://drive.google.com/thumbnail" +
+            "?id=" +
+            encodeURIComponent(
+              file.id
+            ) +
+            "&sz=w1600";
 
-          /*
-           * Use thumbnailLink returned
-           * by the Edge Function.
-           */
-
-          if (
-            file.thumbnailLink
-          ) {
-
-            image.src =
-              file.thumbnailLink;
-
-          }
-
-          else {
-
-            /*
-             * Fallback to Google Drive thumbnail
-             */
-
-            image.src =
-              "https://drive.google.com/thumbnail" +
-              "?id=" +
-              encodeURIComponent(
-                file.id
-              ) +
-              "&sz=w1600";
-
-          }
-
-
-
-          /*
-           * Fallback image URL
-           */
 
           image.onerror =
             function() {
@@ -1504,47 +1255,31 @@
 
 
               image.src =
-                "https://drive.google.com/thumbnail" +
-                "?id=" +
+                "https://drive.google.com/uc" +
+                "?export=view&id=" +
                 encodeURIComponent(
                   file.id
-                ) +
-                "&sz=w1600";
+                );
 
             };
 
-
-
-          /*
-           * Add image to card
-           */
 
           card.appendChild(
             image
           );
 
 
-
-          /*
-           * Open lightbox
-           */
-
           card.addEventListener(
             "click",
             function() {
 
               openLightbox(
-                file
+                file.id
               );
 
             }
           );
 
-
-
-          /*
-           * Add card to grid
-           */
 
           grid.appendChild(
             card
@@ -1554,29 +1289,14 @@
       );
 
 
-
-      /*
-       * Clear loading
-       */
-
       galleryContent.innerHTML =
         "";
 
-
-
-      /*
-       * Add grid
-       */
 
       galleryContent.appendChild(
         grid
       );
 
-
-
-      /*
-       * Drive button
-       */
 
       if (driveUrl) {
 
@@ -1615,71 +1335,29 @@
     }
 
 
-
     /* =====================================================
        LIGHTBOX
     ===================================================== */
 
     function openLightbox(
-      file
+      fileId
     ) {
 
-      /*
-       * Prefer the thumbnail returned
-       * by the Edge Function.
-       */
-
-      let imageUrl =
-        file.thumbnailLink ||
-        "";
-
-
-      /*
-       * Fallback
-       */
-
-      if (!imageUrl && file.id) {
-
-        imageUrl =
-          "https://drive.google.com/thumbnail" +
-          "?id=" +
-          encodeURIComponent(
-            file.id
-          ) +
-          "&sz=w2000";
-
-      }
+      const imageUrl =
+        "https://drive.google.com/thumbnail" +
+        "?id=" +
+        encodeURIComponent(
+          fileId
+        ) +
+        "&sz=w2000";
 
 
-
-      /*
-       * Download URL returned by
-       * the Edge Function.
-       */
-
-      let downloadUrl =
-        file.webContentLink ||
-        "";
-
-
-      /*
-       * Fallback download URL
-       */
-
-      if (
-        !downloadUrl &&
-        file.id
-      ) {
-
-        downloadUrl =
-          "https://drive.google.com/uc" +
-          "?export=download&id=" +
-          encodeURIComponent(
-            file.id
-          );
-
-      }
-
+      const downloadUrl =
+        "https://drive.google.com/uc" +
+        "?export=download&id=" +
+        encodeURIComponent(
+          fileId
+        );
 
 
       lightboxImage.src =
@@ -1688,7 +1366,6 @@
 
       lightboxDownload.href =
         downloadUrl;
-
 
 
       lightbox.classList.add(
@@ -1706,7 +1383,6 @@
         "hidden";
 
     }
-
 
 
     /* =====================================================
@@ -1740,7 +1416,6 @@
     }
 
 
-
     /* =====================================================
        LIGHTBOX EVENTS
     ===================================================== */
@@ -1749,7 +1424,6 @@
       "click",
       closeLightbox
     );
-
 
 
     lightbox.addEventListener(
@@ -1769,7 +1443,6 @@
     );
 
 
-
     document.addEventListener(
       "keydown",
       function(event) {
@@ -1785,7 +1458,6 @@
 
       }
     );
-
 
 
     /* =====================================================
@@ -1836,7 +1508,6 @@
     }
 
 
-
     /* =====================================================
        ESCAPE ATTRIBUTE
     ===================================================== */
@@ -1850,7 +1521,6 @@
       );
 
     }
-
 
 
     /* =====================================================
@@ -1888,7 +1558,6 @@
       );
 
     }
-
 
 
     /* =====================================================
