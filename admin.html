@@ -1071,10 +1071,15 @@
             <input
               id="gallery-code"
               type="text"
-              placeholder="JUAN001"
-              maxlength="50"
+              placeholder="Auto-generated"
+              maxlength="6"
+              readonly
               required
             >
+
+            <small style="display:block;margin-top:7px;color:rgba(255,255,255,.4);font-size:11px;">
+              Automatically generated from the event name.
+            </small>
 
           </div>
 
@@ -1247,6 +1252,8 @@
   ===================================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
 
 
   <script>
@@ -1988,6 +1995,32 @@
       );
 
 
+      /* QR CODE */
+
+      const qrButton =
+        document.createElement(
+          "button"
+        );
+
+      qrButton.className =
+        "small-button button-secondary";
+
+      qrButton.textContent =
+        "QR Code";
+
+      qrButton.addEventListener(
+        "click",
+        function() {
+
+          downloadGalleryQR(
+            gallery.gallery_code,
+            gallery.client_name || "Lumonere Gallery"
+          );
+
+        }
+      );
+
+
       /* OPEN */
 
       const openButton =
@@ -2113,6 +2146,11 @@
 
 
       actions.appendChild(
+        qrButton
+      );
+
+
+      actions.appendChild(
         openButton
       );
 
@@ -2225,6 +2263,25 @@
         }
 
 
+        /* AUTO-GENERATE CODE FOR NEW GALLERY */
+
+        let finalGalleryCode = galleryCode;
+
+        if (!editingId) {
+
+          finalGalleryCode =
+            await generateUniqueGalleryCode(
+              eventName
+            );
+
+          document.getElementById(
+            "gallery-code"
+          ).value =
+            finalGalleryCode;
+
+        }
+
+
         saveButton.disabled =
           true;
 
@@ -2299,7 +2356,7 @@
                     eventName,
 
                   gallery_code:
-                    galleryCode,
+                    finalGalleryCode,
 
                   drive_url:
                     driveUrl,
@@ -2386,6 +2443,293 @@
 
 
     /* =====================================================
+       AUTO GALLERY CODE
+    ===================================================== */
+
+    function getEventPrefix(eventName) {
+
+      const letters =
+        String(eventName || "")
+          .toUpperCase()
+          .replace(/[^A-Z]/g, "");
+
+      let prefix =
+        letters.slice(0, 3);
+
+      if (prefix.length < 3) {
+
+        prefix =
+          (prefix + "XXX").slice(0, 3);
+
+      }
+
+      return prefix;
+
+    }
+
+
+    function randomLetters(length = 3) {
+
+      const alphabet =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+      let result = "";
+
+      for (
+        let i = 0;
+        i < length;
+        i++
+      ) {
+
+        result +=
+          alphabet[
+            Math.floor(
+              Math.random() *
+              alphabet.length
+            )
+          ];
+
+      }
+
+      return result;
+
+    }
+
+
+    async function galleryCodeExists(code) {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("galleries")
+          .select("id")
+          .eq(
+            "gallery_code",
+            code
+          )
+          .limit(1);
+
+      if (error) {
+
+        throw error;
+
+      }
+
+      return (
+        Array.isArray(data) &&
+        data.length > 0
+      );
+
+    }
+
+
+    async function generateUniqueGalleryCode(eventName) {
+
+      const prefix =
+        getEventPrefix(
+          eventName
+        );
+
+      for (
+        let attempt = 0;
+        attempt < 50;
+        attempt++
+      ) {
+
+        const candidate =
+          prefix +
+          randomLetters(3);
+
+        const exists =
+          await galleryCodeExists(
+            candidate
+          );
+
+        if (!exists) {
+
+          return candidate;
+
+        }
+
+      }
+
+      throw new Error(
+        "Unable to generate a unique gallery code. Please try again."
+      );
+
+    }
+
+
+    /* =====================================================
+       QR CODE
+    ===================================================== */
+
+    async function downloadGalleryQR(
+      code,
+      clientName
+    ) {
+
+      const link =
+        getGalleryLink(
+          code
+        );
+
+      if (
+        typeof QRCode ===
+        "undefined"
+      ) {
+
+        alert(
+          "QR Code library is not loaded. Please refresh the page and try again."
+        );
+
+        return;
+
+      }
+
+      const canvas =
+        document.createElement(
+          "canvas"
+        );
+
+      try {
+
+        await QRCode.toCanvas(
+          canvas,
+          link,
+          {
+            width: 1200,
+            margin: 4,
+            errorCorrectionLevel: "H"
+          }
+        );
+
+        const ctx =
+          canvas.getContext(
+            "2d"
+          );
+
+        const padding = 80;
+        const labelHeight = 150;
+
+        const output =
+          document.createElement(
+            "canvas"
+          );
+
+        output.width =
+          canvas.width +
+          padding * 2;
+
+        output.height =
+          canvas.height +
+          padding * 2 +
+          labelHeight;
+
+        const outputCtx =
+          output.getContext(
+            "2d"
+          );
+
+        outputCtx.fillStyle =
+          "#ffffff";
+
+        outputCtx.fillRect(
+          0,
+          0,
+          output.width,
+          output.height
+        );
+
+        outputCtx.drawImage(
+          canvas,
+          padding,
+          padding
+        );
+
+        outputCtx.fillStyle =
+          "#000000";
+
+        outputCtx.textAlign =
+          "center";
+
+        outputCtx.font =
+          "bold 38px Arial";
+
+        outputCtx.fillText(
+          "LUMONERE STUDIO",
+          output.width / 2,
+          canvas.height +
+            padding +
+            65
+        );
+
+        outputCtx.font =
+          "28px Arial";
+
+        outputCtx.fillText(
+          clientName || "Gallery",
+          output.width / 2,
+          canvas.height +
+            padding +
+            110
+        );
+
+        const safeName =
+          String(
+            clientName || "gallery"
+          )
+            .replace(
+              /[^a-z0-9]+/gi,
+              "-"
+            )
+            .replace(
+              /^-+|-+$/g,
+              ""
+            )
+            .toLowerCase() ||
+          "gallery";
+
+        const linkElement =
+          document.createElement(
+            "a"
+          );
+
+        linkElement.download =
+          "lumonere-" +
+          safeName +
+          "-" +
+          code.toLowerCase() +
+          "-qr.png";
+
+        linkElement.href =
+          output.toDataURL(
+            "image/png"
+          );
+
+        linkElement.click();
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "QR generation error:",
+          error
+        );
+
+        alert(
+          "Unable to generate QR code."
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
        EDIT
     ===================================================== */
 
@@ -2463,6 +2807,55 @@
       });
 
     }
+
+
+    /* =====================================================
+       EVENT NAME -> CODE PREVIEW
+    ===================================================== */
+
+    const eventNameInput =
+      document.getElementById(
+        "event-name"
+      );
+
+    const galleryCodeInput =
+      document.getElementById(
+        "gallery-code"
+      );
+
+    eventNameInput.addEventListener(
+      "input",
+      function() {
+
+        if (editingId) {
+
+          return;
+
+        }
+
+        const prefix =
+          getEventPrefix(
+            this.value
+          );
+
+        if (
+          this.value.trim()
+        ) {
+
+          galleryCodeInput.value =
+            prefix +
+            "XXX";
+
+        }
+        else {
+
+          galleryCodeInput.value =
+            "";
+
+        }
+
+      }
+    );
 
 
     /* =====================================================
