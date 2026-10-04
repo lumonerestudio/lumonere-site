@@ -4,16 +4,13 @@
 
 :root {
   --bg: #080808;
-  --card: #111111;
   --line: rgba(255,255,255,.12);
   --text: #f7f4ef;
   --muted: #aaa39a;
   --gold: #d7b77b;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -32,10 +29,7 @@ body {
   padding-bottom: 22px;
 }
 
-.hero {
-  padding: 0;
-  background: #000;
-}
+.hero { padding: 0; background: #000; }
 
 .hero-link {
   display: block;
@@ -49,12 +43,10 @@ body {
   height: auto;
   aspect-ratio: 1320 / 490;
   object-fit: cover;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .2s ease;
 }
 
-.hero-link:active .hero-image {
-  opacity: .85;
-}
+.hero-link:active .hero-image { opacity: .85; }
 
 .content {
   padding: 34px 22px 10px;
@@ -97,22 +89,25 @@ h1 span {
   text-align: left;
 }
 
-.social {
-  display: grid;
-  grid-template-columns: 46px 1fr auto;
-  align-items: center;
-  gap: 13px;
+.social, .phone-card {
   min-height: 70px;
   padding: 11px 17px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+}
+
+.social {
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  align-items: center;
+  gap: 13px;
   color: var(--text);
   text-decoration: none;
   transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
 
-.social:hover {
+.social:hover, .phone-card:hover {
   transform: translateY(-2px);
   border-color: rgba(215,183,123,.48);
   background: linear-gradient(135deg, rgba(215,183,123,.12), rgba(255,255,255,.025));
@@ -126,21 +121,30 @@ h1 span {
   display: grid;
   place-items: center;
   color: var(--gold);
-  font-size: 22px;
-  font-weight: 700;
 }
 
-.social strong,
-.social small {
+.icon svg {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+}
+
+.instagram-icon svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+
+.social strong, .social small, .phone-info strong, .phone-info small {
   display: block;
 }
 
-.social strong {
+.social strong, .phone-info strong {
   font-size: 15px;
   margin-bottom: 4px;
 }
 
-.social small {
+.social small, .phone-info small {
   color: var(--muted);
   font-size: 12px;
 }
@@ -150,21 +154,53 @@ h1 span {
   font-size: 20px;
 }
 
-.contact {
+.phone-card {
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  align-items: center;
+  gap: 13px;
+}
+
+.phone-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.mini-action {
+  min-width: 58px;
+  min-height: 45px;
+  padding: 6px 9px;
+  border: 1px solid rgba(215,183,123,.32);
+  border-radius: 12px;
+  color: var(--gold);
+  text-decoration: none;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  margin: 27px 0 7px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 700;
 }
 
-.contact a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 13px;
+.mini-action:hover {
+  background: rgba(215,183,123,.10);
 }
 
-.contact a:hover {
-  color: var(--text);
+.mini-action svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.hint {
+  color: #68645f;
+  font-size: 11px;
+  margin: 20px 0 4px;
+}
+
+.contact {
+  display: none;
 }
 
 footer {
@@ -175,10 +211,28 @@ footer {
   letter-spacing: .12em;
 }
 
-@media (min-width: 681px) {
-  body {
-    padding: 28px 0;
+@media (max-width: 420px) {
+  .phone-card {
+    grid-template-columns: 42px 1fr;
   }
+
+  .phone-card .icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .phone-actions {
+    grid-column: 2;
+    width: 100%;
+  }
+
+  .mini-action {
+    flex: 1;
+  }
+}
+
+@media (min-width: 681px) {
+  body { padding: 28px 0; }
 
   .page {
     border: 1px solid var(--line);
