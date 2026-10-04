@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="theme-color" content="#080808">
+  <meta
+    name="theme-color"
+    content="#080808"
+  >
+
   <meta
     name="description"
     content="Lumonere Studio Photo Gallery"
@@ -13,6 +17,7 @@
   <title>Lumonere Studio Gallery</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -23,6 +28,7 @@
 
     body {
       margin: 0;
+
       background:
         radial-gradient(
           circle at top,
@@ -30,7 +36,9 @@
           #0d0d0d 45%,
           #080808 100%
         );
+
       color: #fff;
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -38,15 +46,24 @@
         Roboto,
         Arial,
         sans-serif;
+
       min-height: 100vh;
     }
+
+
+    /* =========================
+       PAGE
+    ========================= */
 
     .gallery-page {
       width: 100%;
       max-width: 1100px;
+
       margin: 0 auto;
+
       padding: 28px 18px 60px;
     }
+
 
     /* =========================
        HEADER
@@ -57,191 +74,378 @@
       margin-bottom: 30px;
     }
 
+
     .brand {
       font-size: 13px;
+
       letter-spacing: 4px;
+
       font-weight: 600;
+
       opacity: .65;
+
       text-transform: uppercase;
+
       margin-bottom: 10px;
     }
 
+
     .gallery-title {
       margin: 0;
-      font-size: clamp(28px, 7vw, 48px);
+
+      font-size: clamp(
+        28px,
+        7vw,
+        48px
+      );
+
       font-weight: 700;
+
       letter-spacing: -1px;
     }
+
 
     .gallery-title span {
       font-weight: 300;
     }
 
+
     .client-name {
       margin: 12px 0 4px;
+
       font-size: 20px;
+
       font-weight: 500;
     }
 
+
     .event-name {
       margin: 0;
+
       opacity: .65;
+
       font-size: 14px;
     }
 
+
     .event-date {
       margin: 8px 0 0;
+
       opacity: .5;
+
       font-size: 13px;
     }
 
+
     /* =========================
-       GALLERY
+       PHOTO GRID
     ========================= */
 
     .photo-grid {
+
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
       gap: 10px;
+
+      margin-top: 20px;
     }
+
 
     .photo-card {
+
       position: relative;
+
       overflow: hidden;
+
       border-radius: 10px;
+
       background: #151515;
+
       aspect-ratio: 1 / 1;
+
       cursor: pointer;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
     }
+
+
+    .photo-card:hover {
+
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.35);
+    }
+
 
     .photo-card img {
+
       width: 100%;
+
       height: 100%;
+
       display: block;
+
       object-fit: cover;
-      transition: transform .3s ease;
+
+      transition:
+        transform .3s ease;
     }
 
+
     .photo-card:hover img {
-      transform: scale(1.04);
+
+      transform:
+        scale(1.04);
     }
+
 
     /* =========================
        LOADING
     ========================= */
 
     .loading {
+
       text-align: center;
+
       padding: 80px 20px;
+
       opacity: .7;
     }
 
+
     .spinner {
+
       width: 34px;
+
       height: 34px;
-      border: 3px solid rgba(255,255,255,.15);
-      border-top-color: #fff;
+
+      border:
+        3px solid
+        rgba(255,255,255,.15);
+
+      border-top-color:
+        #fff;
+
       border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 0 auto 18px;
+
+      animation:
+        spin .8s linear infinite;
+
+      margin:
+        0 auto 18px;
     }
 
+
     @keyframes spin {
+
       to {
         transform: rotate(360deg);
       }
+
     }
 
+
     /* =========================
-       EMPTY / ERROR
+       MESSAGE
     ========================= */
 
     .message {
+
       text-align: center;
+
       padding: 80px 20px;
     }
 
+
     .message-icon {
+
       font-size: 42px;
+
       margin-bottom: 15px;
     }
 
+
     .message h2 {
-      margin: 0 0 8px;
+
+      margin:
+        0 0 8px;
+
       font-size: 24px;
     }
 
+
     .message p {
+
       margin: 0;
+
       opacity: .55;
+
       font-size: 14px;
     }
+
+
+    /* =========================
+       DRIVE BUTTON
+    ========================= */
+
+    .drive-button {
+
+      display: inline-block;
+
+      margin-top: 20px;
+
+      background: #fff;
+
+      color: #000;
+
+      text-decoration: none;
+
+      padding:
+        12px 22px;
+
+      border-radius: 30px;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      transition:
+        transform .2s ease,
+        opacity .2s ease;
+    }
+
+
+    .drive-button:hover {
+
+      transform:
+        translateY(-2px);
+
+      opacity: .85;
+    }
+
 
     /* =========================
        LIGHTBOX
     ========================= */
 
     .lightbox {
+
       position: fixed;
+
       inset: 0;
-      background: rgba(0,0,0,.94);
+
+      background:
+        rgba(0,0,0,.94);
+
       display: none;
+
       align-items: center;
+
       justify-content: center;
+
       z-index: 9999;
+
       padding: 20px;
     }
 
+
     .lightbox.active {
+
       display: flex;
     }
 
+
     .lightbox-image {
+
       max-width: 95vw;
+
       max-height: 85vh;
+
       object-fit: contain;
+
       border-radius: 6px;
     }
 
+
     .lightbox-close {
+
       position: fixed;
+
       top: 18px;
+
       right: 20px;
+
       width: 42px;
+
       height: 42px;
+
       border: 0;
+
       border-radius: 50%;
-      background: rgba(255,255,255,.12);
+
+      background:
+        rgba(255,255,255,.12);
+
       color: white;
+
       font-size: 25px;
+
       cursor: pointer;
     }
 
+
     .lightbox-download {
+
       position: fixed;
+
       bottom: 22px;
+
       left: 50%;
-      transform: translateX(-50%);
+
+      transform:
+        translateX(-50%);
+
       background: white;
+
       color: black;
+
       text-decoration: none;
-      padding: 12px 22px;
+
+      padding:
+        12px 22px;
+
       border-radius: 30px;
+
       font-size: 14px;
+
       font-weight: 600;
     }
+
 
     /* =========================
        FOOTER
     ========================= */
 
     .gallery-footer {
+
       text-align: center;
+
       margin-top: 45px;
+
       opacity: .35;
+
       font-size: 12px;
+
       letter-spacing: .5px;
     }
+
 
     /* =========================
        MOBILE
@@ -250,28 +454,48 @@
     @media (max-width: 600px) {
 
       .gallery-page {
-        padding: 22px 10px 45px;
+
+        padding:
+          22px 10px 45px;
       }
 
+
       .photo-grid {
-        grid-template-columns: repeat(2, 1fr);
+
+        grid-template-columns:
+          repeat(2, 1fr);
+
         gap: 7px;
       }
 
+
       .photo-card {
+
         border-radius: 7px;
       }
 
+
       .gallery-title {
+
         font-size: 32px;
       }
+
     }
+
   </style>
+
 </head>
+
 
 <body>
 
+
   <main class="gallery-page">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
 
     <header class="gallery-header">
 
@@ -279,30 +503,47 @@
         LUMONERE STUDIO
       </div>
 
+
       <h1 class="gallery-title">
         PHOTO <span>GALLERY</span>
       </h1>
+
 
       <div id="gallery-info"></div>
 
     </header>
 
 
+
+    <!-- =========================
+         GALLERY CONTENT
+    ========================= -->
+
     <section id="gallery-content">
 
       <div class="loading">
+
         <div class="spinner"></div>
-        <div>Loading your gallery...</div>
+
+        <div>
+          Loading your gallery...
+        </div>
+
       </div>
 
     </section>
 
 
+
     <footer class="gallery-footer">
+
       Making Your Moments Photo Worthy.
+
     </footer>
 
+
   </main>
+
 
 
   <!-- =========================
@@ -323,12 +564,14 @@
       ×
     </button>
 
+
     <img
       id="lightbox-image"
       class="lightbox-image"
       src=""
       alt="Gallery photo"
     >
+
 
     <a
       id="lightbox-download"
@@ -344,6 +587,7 @@
   </div>
 
 
+
   <!-- =========================
        SUPABASE
   ========================= -->
@@ -351,13 +595,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
+
   <script>
+
+    /* =========================
+       SUPABASE CONFIG
+    ========================= */
 
     const SUPABASE_URL =
       "https://xlwcxuicdveqaxeeqawv.supabase.co";
 
+
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
+
 
     const supabaseClient =
       window.supabase.createClient(
@@ -367,14 +618,38 @@
 
 
     /* =========================
+       GOOGLE DRIVE API KEY
+    ========================= */
+
+    const GOOGLE_DRIVE_API_KEY =
+      "AIzaSyAOs6C8MRVZHv094PK3RcSQC49alFhP48o";
+
+
+    console.log(
+      "Lumonere Studio Supabase connected"
+    );
+
+
+    console.log(
+      "Google Drive API configured:",
+      Boolean(GOOGLE_DRIVE_API_KEY)
+    );
+
+
+
+    /* =========================
        GET GALLERY CODE
     ========================= */
 
     const params =
-      new URLSearchParams(window.location.search);
+      new URLSearchParams(
+        window.location.search
+      );
+
 
     const galleryCode =
       params.get("code");
+
 
 
     /* =========================
@@ -382,22 +657,40 @@
     ========================= */
 
     const galleryInfo =
-      document.getElementById("gallery-info");
+      document.getElementById(
+        "gallery-info"
+      );
+
 
     const galleryContent =
-      document.getElementById("gallery-content");
+      document.getElementById(
+        "gallery-content"
+      );
+
 
     const lightbox =
-      document.getElementById("lightbox");
+      document.getElementById(
+        "lightbox"
+      );
+
 
     const lightboxImage =
-      document.getElementById("lightbox-image");
+      document.getElementById(
+        "lightbox-image"
+      );
+
 
     const lightboxDownload =
-      document.getElementById("lightbox-download");
+      document.getElementById(
+        "lightbox-download"
+      );
+
 
     const lightboxClose =
-      document.getElementById("lightbox-close");
+      document.getElementById(
+        "lightbox-close"
+      );
+
 
 
     /* =========================
@@ -423,19 +716,24 @@
       );
 
 
-      const { data, error } =
-        await supabaseClient.rpc(
-          "get_gallery_by_code",
-          {
-            p_code: galleryCode
-          }
-        );
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .rpc(
+            "get_gallery_by_code",
+            {
+              p_code: galleryCode
+            }
+          );
 
 
       console.log(
         "Gallery DATA:",
         data
       );
+
 
       console.log(
         "Gallery ERROR:",
@@ -454,7 +752,10 @@
       }
 
 
-      if (!data || data.length === 0) {
+      if (
+        !data ||
+        data.length === 0
+      ) {
 
         showMessage(
           "Gallery Not Found",
@@ -465,14 +766,18 @@
       }
 
 
-      const gallery = data[0];
+      const gallery =
+        data[0];
+
 
 
       /* =========================
          ACTIVE CHECK
       ========================= */
 
-      if (gallery.active === false) {
+      if (
+        gallery.active === false
+      ) {
 
         showMessage(
           "Gallery Unavailable",
@@ -483,16 +788,24 @@
       }
 
 
+
       /* =========================
          EXPIRATION CHECK
       ========================= */
 
-      if (gallery.expires_at) {
+      if (
+        gallery.expires_at
+      ) {
 
         const expiration =
-          new Date(gallery.expires_at);
+          new Date(
+            gallery.expires_at
+          );
 
-        if (expiration < new Date()) {
+
+        if (
+          expiration < new Date()
+        ) {
 
           showMessage(
             "Gallery Expired",
@@ -501,7 +814,9 @@
 
           return;
         }
+
       }
+
 
 
       /* =========================
@@ -511,18 +826,32 @@
       galleryInfo.innerHTML = `
 
         <div class="client-name">
-          ${escapeHtml(gallery.client_name)}
+
+          ${escapeHtml(
+            gallery.client_name
+          )}
+
         </div>
 
+
         <div class="event-name">
-          ${escapeHtml(gallery.event_name)}
+
+          ${escapeHtml(
+            gallery.event_name
+          )}
+
         </div>
+
 
         ${
           gallery.event_date
             ? `
               <div class="event-date">
-                ${formatDate(gallery.event_date)}
+
+                ${formatDate(
+                  gallery.event_date
+                )}
+
               </div>
             `
             : ""
@@ -531,117 +860,500 @@
       `;
 
 
-      /*
-       * TEMPORARY:
-       * Until the Google Drive photo bridge
-       * is connected, show the Drive button.
-       */
 
-      galleryContent.innerHTML = `
+      /* =========================
+         LOAD DRIVE PHOTOS
+      ========================= */
 
-        <div class="message">
-
-          <div class="message-icon">
-            📸
-          </div>
-
-          <h2>
-            Your gallery is ready
-          </h2>
-
-          <p>
-            Your photos are currently stored
-            in your Lumonere Studio gallery.
-          </p>
-
-          <br>
-
-          <a
-            class="lightbox-download"
-            style="
-              position: static;
-              transform: none;
-              display: inline-block;
-            "
-            href="${escapeAttribute(gallery.drive_url)}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            📷 Open Photos
-          </a>
-
-        </div>
-
-      `;
+      await loadDrivePhotos(
+        gallery
+      );
 
     }
+
 
 
     /* =========================
-       MESSAGE
+       GET DRIVE FOLDER ID
     ========================= */
 
-    function showMessage(title, message) {
+    function getDriveFolderId(
+      driveUrl
+    ) {
+
+      if (!driveUrl) {
+        return null;
+      }
+
+
+      const match =
+        driveUrl.match(
+          /\/folders\/([a-zA-Z0-9_-]+)/
+        );
+
+
+      if (!match) {
+        return null;
+      }
+
+
+      return match[1];
+
+    }
+
+
+
+    /* =========================
+       LOAD GOOGLE DRIVE PHOTOS
+    ========================= */
+
+    async function loadDrivePhotos(
+      gallery
+    ) {
+
+      if (
+        !GOOGLE_DRIVE_API_KEY ||
+        GOOGLE_DRIVE_API_KEY ===
+          "ILAGAY_DITO_ANG_GOOGLE_DRIVE_API_KEY_MO"
+      ) {
+
+        showMessage(
+          "Gallery Ready",
+          "Google Drive API key is not configured yet."
+        );
+
+        return;
+      }
+
+
+      const folderId =
+        getDriveFolderId(
+          gallery.drive_url
+        );
+
+
+      console.log(
+        "Google Drive Folder ID:",
+        folderId
+      );
+
+
+      if (!folderId) {
+
+        showMessage(
+          "Gallery Error",
+          "We couldn't determine the Google Drive folder."
+        );
+
+        return;
+      }
+
+
 
       galleryContent.innerHTML = `
 
-        <div class="message">
+        <div class="loading">
 
-          <div class="message-icon">
-            📸
+          <div class="spinner"></div>
+
+          <div>
+            Loading your photos...
           </div>
-
-          <h2>
-            ${escapeHtml(title)}
-          </h2>
-
-          <p>
-            ${escapeHtml(message)}
-          </p>
 
         </div>
 
       `;
 
+
+
+      try {
+
+        const files =
+          await getAllDriveImages(
+            folderId
+          );
+
+
+        console.log(
+          "Google Drive photos:",
+          files
+        );
+
+
+        if (
+          !files ||
+          files.length === 0
+        ) {
+
+          showMessage(
+            "No Photos Yet",
+            "Your photos are not available yet."
+          );
+
+          return;
+        }
+
+
+        renderPhotos(
+          files,
+          gallery.drive_url
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Google Drive error:",
+          error
+        );
+
+
+        showMessage(
+          "Unable to Load Photos",
+          "We couldn't load the photos from Google Drive."
+        );
+
+      }
+
     }
+
+
+
+    /* =========================
+       GET ALL DRIVE IMAGES
+    ========================= */
+
+    async function getAllDriveImages(
+      folderId
+    ) {
+
+      let allFiles = [];
+
+      let pageToken = null;
+
+
+      do {
+
+        const query =
+          encodeURIComponent(
+            `'${folderId}' in parents and trashed = false and mimeType contains 'image/'`
+          );
+
+
+        let url =
+          "https://www.googleapis.com/drive/v3/files" +
+          "?q=" + query +
+          "&key=" +
+          encodeURIComponent(
+            GOOGLE_DRIVE_API_KEY
+          ) +
+          "&pageSize=100" +
+          "&orderBy=name" +
+          "&fields=nextPageToken,files(id,name,mimeType,size,thumbnailLink,webContentLink)";
+
+
+        if (pageToken) {
+
+          url +=
+            "&pageToken=" +
+            encodeURIComponent(
+              pageToken
+            );
+
+        }
+
+
+        const response =
+          await fetch(url);
+
+
+        const result =
+          await response.json();
+
+
+        console.log(
+          "Drive API response:",
+          result
+        );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            result.error?.message ||
+            "Google Drive API request failed."
+          );
+
+        }
+
+
+        if (
+          result.files
+        ) {
+
+          allFiles =
+            allFiles.concat(
+              result.files
+            );
+
+        }
+
+
+        pageToken =
+          result.nextPageToken ||
+          null;
+
+      }
+
+      while (pageToken);
+
+
+      return allFiles;
+
+    }
+
+
+
+    /* =========================
+       RENDER PHOTOS
+    ========================= */
+
+    function renderPhotos(
+      files,
+      driveUrl
+    ) {
+
+      const grid =
+        document.createElement(
+          "div"
+        );
+
+
+      grid.className =
+        "photo-grid";
+
+
+      files.forEach(
+        function(file) {
+
+          const card =
+            document.createElement(
+              "div"
+            );
+
+
+          card.className =
+            "photo-card";
+
+
+          const image =
+            document.createElement(
+              "img"
+            );
+
+
+          image.loading =
+            "lazy";
+
+
+          image.alt =
+            file.name ||
+            "Lumonere Studio photo";
+
+
+          /*
+           * Google Drive thumbnail endpoint.
+           *
+           * This allows the browser to
+           * display the image without
+           * exposing the actual file URL.
+           */
+
+          image.src =
+            "https://drive.google.com/thumbnail" +
+            "?id=" +
+            encodeURIComponent(
+              file.id
+            ) +
+            "&sz=w1600";
+
+
+          image.onerror =
+            function() {
+
+              /*
+               * If thumbnail fails,
+               * try Google's export URL.
+               */
+
+              image.src =
+                "https://drive.google.com/uc" +
+                "?export=view&id=" +
+                encodeURIComponent(
+                  file.id
+                );
+
+            };
+
+
+          card.appendChild(
+            image
+          );
+
+
+          card.addEventListener(
+            "click",
+            function() {
+
+              openLightbox(
+                file.id
+              );
+
+            }
+          );
+
+
+          grid.appendChild(
+            card
+          );
+
+        }
+      );
+
+
+
+      galleryContent.innerHTML =
+        "";
+
+
+      galleryContent.appendChild(
+        grid
+      );
+
+
+
+      /*
+       * Keep a button to open
+       * the original Google Drive
+       * folder.
+       */
+
+      const driveButton =
+        document.createElement(
+          "div"
+        );
+
+
+      driveButton.style.textAlign =
+        "center";
+
+
+      driveButton.innerHTML = `
+
+        <a
+          class="drive-button"
+          href="${escapeAttribute(
+            driveUrl
+          )}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open Google Drive
+        </a>
+
+      `;
+
+
+      galleryContent.appendChild(
+        driveButton
+      );
+
+    }
+
 
 
     /* =========================
        LIGHTBOX
     ========================= */
 
-    function openLightbox(imageUrl) {
+    function openLightbox(
+      fileId
+    ) {
 
-      lightboxImage.src = imageUrl;
+      const imageUrl =
+        "https://drive.google.com/thumbnail" +
+        "?id=" +
+        encodeURIComponent(
+          fileId
+        ) +
+        "&sz=w2000";
 
-      lightboxDownload.href = imageUrl;
 
-      lightbox.classList.add("active");
+      const downloadUrl =
+        "https://drive.google.com/uc" +
+        "?export=download&id=" +
+        encodeURIComponent(
+          fileId
+        );
+
+
+      lightboxImage.src =
+        imageUrl;
+
+
+      lightboxDownload.href =
+        downloadUrl;
+
+
+      lightbox.classList.add(
+        "active"
+      );
+
 
       lightbox.setAttribute(
         "aria-hidden",
         "false"
       );
 
-      document.body.style.overflow = "hidden";
+
+      document.body.style.overflow =
+        "hidden";
 
     }
 
 
+
+    /* =========================
+       CLOSE LIGHTBOX
+    ========================= */
+
     function closeLightbox() {
 
-      lightbox.classList.remove("active");
+      lightbox.classList.remove(
+        "active"
+      );
+
 
       lightbox.setAttribute(
         "aria-hidden",
         "true"
       );
 
-      lightboxImage.src = "";
 
-      document.body.style.overflow = "";
+      lightboxImage.src =
+        "";
+
+
+      lightboxDownload.href =
+        "";
+
+
+      document.body.style.overflow =
+        "";
 
     }
+
 
 
     lightboxClose.addEventListener(
@@ -650,63 +1362,111 @@
     );
 
 
+
     lightbox.addEventListener(
       "click",
       function(event) {
 
-        if (event.target === lightbox) {
+        if (
+          event.target ===
+          lightbox
+        ) {
+
           closeLightbox();
+
         }
 
       }
     );
+
 
 
     document.addEventListener(
       "keydown",
       function(event) {
 
-        if (event.key === "Escape") {
+        if (
+          event.key ===
+          "Escape"
+        ) {
+
           closeLightbox();
+
         }
 
       }
     );
 
 
+
     /* =========================
        HELPERS
     ========================= */
 
-    function escapeHtml(value) {
+    function escapeHtml(
+      value
+    ) {
 
       if (
         value === null ||
         value === undefined
       ) {
+
         return "";
+
       }
 
+
       return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
 
     }
 
 
-    function escapeAttribute(value) {
 
-      return escapeHtml(value);
+    function escapeAttribute(
+      value
+    ) {
+
+      return escapeHtml(
+        value
+      );
 
     }
 
 
-    function formatDate(date) {
 
-      return new Date(date).toLocaleDateString(
+    function formatDate(
+      date
+    ) {
+
+      return new Date(
+        date
+      ).toLocaleDateString(
         "en-PH",
         {
           year: "numeric",
@@ -718,6 +1478,7 @@
     }
 
 
+
     /* =========================
        START
     ========================= */
@@ -725,6 +1486,7 @@
     loadGallery();
 
   </script>
+
 
 </body>
 </html>
