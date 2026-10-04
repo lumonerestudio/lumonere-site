@@ -670,19 +670,6 @@
 
 
     /* =====================================================
-       GOOGLE DRIVE API KEY
-
-       IMPORTANT:
-       Paste your actual Google Drive API key between
-       the quotation marks.
-    ===================================================== */
-
-    const GOOGLE_DRIVE_API_KEY =
-      "AIzaSyAOs6C8MRVZHv094PK3RcSQC49alFhP48o";
-
-
-
-    /* =====================================================
        GET GALLERY CODE
     ===================================================== */
 
@@ -1151,33 +1138,21 @@
 
     /* =====================================================
        LOAD GOOGLE DRIVE PHOTOS
+       
+       IMPORTANT:
+       Google Drive API is NO LONGER called directly
+       from the browser.
+
+       Browser
+          ↓
+       Supabase Edge Function
+          ↓
+       Google Drive API
     ===================================================== */
 
     async function loadDrivePhotos(
       gallery
     ) {
-
-      /*
-       * Check API key
-       */
-
-      if (
-        !GOOGLE_DRIVE_API_KEY ||
-        GOOGLE_DRIVE_API_KEY ===
-          ""
-      ) {
-
-        showMessage(
-          "Google Drive Not Configured",
-          "The Google Drive API key has not been added yet.",
-          "🔑"
-        );
-
-        return;
-
-      }
-
-
 
       /*
        * Get folder ID
@@ -1237,17 +1212,17 @@
       try {
 
         /*
-         * Get Drive files
+         * Call Supabase Edge Function
          */
 
         const files =
-          await getAllDriveImages(
+          await getDrivePhotosFromEdgeFunction(
             folderId
           );
 
 
         console.log(
-          "Google Drive photos:",
+          "Photos returned by Edge Function:",
           files
         );
 
@@ -1307,171 +1282,116 @@
 
 
     /* =====================================================
-       GET ALL DRIVE IMAGES
+       GET DRIVE PHOTOS FROM SUPABASE EDGE FUNCTION
     ===================================================== */
 
-    async function getAllDriveImages(
+    async function getDrivePhotosFromEdgeFunction(
       folderId
     ) {
 
-      let allFiles = [];
-
-      let pageToken = null;
-
-
-
-      do {
-
-        /*
-         * Search only images inside this folder
-         */
-
-        const query =
-          encodeURIComponent(
-            `'${folderId}' in parents and trashed = false and mimeType contains 'image/'`
-          );
+      const endpoint =
+        SUPABASE_URL +
+        "/functions/v1/get-gallery-photos";
 
 
+      /*
+       * Browser automatically creates valid JSON.
+       */
 
-        /*
-         * Google Drive API v3
-         */
+      const response =
+        await fetch(
+          endpoint,
+          {
+            method: "POST",
 
-        let url =
-          "https://www.googleapis.com/drive/v3/files" +
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
 
-          "?q=" +
-          query +
-
-          "&key=" +
-          encodeURIComponent(
-            GOOGLE_DRIVE_API_KEY
-          ) +
-
-          "&pageSize=100" +
-
-          "&orderBy=name" +
-
-          "&fields=" +
-          encodeURIComponent(
-            "nextPageToken,files(id,name,mimeType,size,thumbnailLink,webContentLink)"
-          );
-
-
-
-        /*
-         * Pagination
-         */
-
-        if (pageToken) {
-
-          url +=
-            "&pageToken=" +
-            encodeURIComponent(
-              pageToken
-            );
-
-        }
-
-
-
-        console.log(
-          "Calling Google Drive API..."
+            body: JSON.stringify({
+              folderId: folderId
+            })
+          }
         );
 
 
 
-        const response =
-          await fetch(
-            url
-          );
+      /*
+       * Try to parse response
+       */
+
+      let result = null;
 
 
+      try {
 
-        /*
-         * Parse JSON
-         */
-
-        let result;
-
-
-        try {
-
-          result =
-            await response.json();
-
-        }
-
-        catch (jsonError) {
-
-          throw new Error(
-            "Google Drive returned an invalid response."
-          );
-
-        }
-
-
-
-        console.log(
-          "Drive API response:",
-          result
-        );
-
-
-
-        /*
-         * API error
-         */
-
-        if (!response.ok) {
-
-          const apiMessage =
-            result?.error?.message ||
-            `Google Drive API error (${response.status}).`;
-
-
-          throw new Error(
-            apiMessage
-          );
-
-        }
-
-
-
-        /*
-         * Add files
-         */
-
-        if (
-          Array.isArray(
-            result.files
-          )
-        ) {
-
-          allFiles =
-            allFiles.concat(
-              result.files
-            );
-
-        }
-
-
-
-        /*
-         * Next page
-         */
-
-        pageToken =
-          result.nextPageToken ||
-          null;
+        result =
+          await response.json();
 
       }
 
-      while (pageToken);
+      catch (jsonError) {
+
+        throw new Error(
+          "Gallery server returned an invalid response."
+        );
+
+      }
 
 
 
-      return allFiles;
+      console.log(
+        "get-gallery-photos response:",
+        result
+      );
+
+
+
+      /*
+       * Edge Function error
+       */
+
+      if (!response.ok) {
+
+        const errorMessage =
+          result?.details ||
+          result?.error ||
+          `Gallery server error (${response.status}).`;
+
+
+        throw new Error(
+          errorMessage
+        );
+
+      }
+
+
+
+      /*
+       * Expected response:
+       *
+       * {
+       *   "files": [...]
+       * }
+       */
+
+      if (
+        !result ||
+        !Array.isArray(
+          result.files
+        )
+      ) {
+
+        throw new Error(
+          "Gallery server returned an unexpected response."
+        );
+
+      }
+
+
+
+      return result.files;
 
     }
 
@@ -1532,16 +1452,34 @@
 
 
           /*
-           * Google Drive thumbnail
+           * Use thumbnailLink returned
+           * by the Edge Function.
            */
 
-          image.src =
-            "https://drive.google.com/thumbnail" +
-            "?id=" +
-            encodeURIComponent(
-              file.id
-            ) +
-            "&sz=w1600";
+          if (
+            file.thumbnailLink
+          ) {
+
+            image.src =
+              file.thumbnailLink;
+
+          }
+
+          else {
+
+            /*
+             * Fallback to Google Drive thumbnail
+             */
+
+            image.src =
+              "https://drive.google.com/thumbnail" +
+              "?id=" +
+              encodeURIComponent(
+                file.id
+              ) +
+              "&sz=w1600";
+
+          }
 
 
 
@@ -1566,11 +1504,12 @@
 
 
               image.src =
-                "https://drive.google.com/uc" +
-                "?export=view&id=" +
+                "https://drive.google.com/thumbnail" +
+                "?id=" +
                 encodeURIComponent(
                   file.id
-                );
+                ) +
+                "&sz=w1600";
 
             };
 
@@ -1595,7 +1534,7 @@
             function() {
 
               openLightbox(
-                file.id
+                file
               );
 
             }
@@ -1682,25 +1621,64 @@
     ===================================================== */
 
     function openLightbox(
-      fileId
+      file
     ) {
 
-      const imageUrl =
-        "https://drive.google.com/thumbnail" +
-        "?id=" +
-        encodeURIComponent(
-          fileId
-        ) +
-        "&sz=w2000";
+      /*
+       * Prefer the thumbnail returned
+       * by the Edge Function.
+       */
+
+      let imageUrl =
+        file.thumbnailLink ||
+        "";
+
+
+      /*
+       * Fallback
+       */
+
+      if (!imageUrl && file.id) {
+
+        imageUrl =
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w2000";
+
+      }
 
 
 
-      const downloadUrl =
-        "https://drive.google.com/uc" +
-        "?export=download&id=" +
-        encodeURIComponent(
-          fileId
-        );
+      /*
+       * Download URL returned by
+       * the Edge Function.
+       */
+
+      let downloadUrl =
+        file.webContentLink ||
+        "";
+
+
+      /*
+       * Fallback download URL
+       */
+
+      if (
+        !downloadUrl &&
+        file.id
+      ) {
+
+        downloadUrl =
+          "https://drive.google.com/uc" +
+          "?export=download&id=" +
+          encodeURIComponent(
+            file.id
+          );
+
+      }
 
 
 
