@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <meta
     name="theme-color"
@@ -16,15 +22,18 @@
 
   <title>Lumonere Studio Gallery</title>
 
+
   <style>
 
     * {
       box-sizing: border-box;
     }
 
+
     html {
       background: #080808;
     }
+
 
     body {
       margin: 0;
@@ -56,12 +65,15 @@
     ========================= */
 
     .gallery-page {
+
       width: 100%;
+
       max-width: 1100px;
 
       margin: 0 auto;
 
       padding: 28px 18px 60px;
+
     }
 
 
@@ -70,12 +82,16 @@
     ========================= */
 
     .gallery-header {
+
       text-align: center;
+
       margin-bottom: 30px;
+
     }
 
 
     .brand {
+
       font-size: 13px;
 
       letter-spacing: 4px;
@@ -87,10 +103,12 @@
       text-transform: uppercase;
 
       margin-bottom: 10px;
+
     }
 
 
     .gallery-title {
+
       margin: 0;
 
       font-size: clamp(
@@ -102,38 +120,47 @@
       font-weight: 700;
 
       letter-spacing: -1px;
+
     }
 
 
     .gallery-title span {
+
       font-weight: 300;
+
     }
 
 
     .client-name {
+
       margin: 12px 0 4px;
 
       font-size: 20px;
 
       font-weight: 500;
+
     }
 
 
     .event-name {
+
       margin: 0;
 
       opacity: .65;
 
       font-size: 14px;
+
     }
 
 
     .event-date {
+
       margin: 8px 0 0;
 
       opacity: .5;
 
       font-size: 13px;
+
     }
 
 
@@ -151,6 +178,7 @@
       gap: 10px;
 
       margin-top: 20px;
+
     }
 
 
@@ -171,16 +199,19 @@
       transition:
         transform .2s ease,
         box-shadow .2s ease;
+
     }
 
 
     .photo-card:hover {
 
-      transform: translateY(-2px);
+      transform:
+        translateY(-2px);
 
       box-shadow:
         0 10px 30px
         rgba(0,0,0,.35);
+
     }
 
 
@@ -196,6 +227,7 @@
 
       transition:
         transform .3s ease;
+
     }
 
 
@@ -203,6 +235,7 @@
 
       transform:
         scale(1.04);
+
     }
 
 
@@ -217,6 +250,7 @@
       padding: 80px 20px;
 
       opacity: .7;
+
     }
 
 
@@ -240,6 +274,7 @@
 
       margin:
         0 auto 18px;
+
     }
 
 
@@ -261,6 +296,7 @@
       text-align: center;
 
       padding: 80px 20px;
+
     }
 
 
@@ -269,6 +305,7 @@
       font-size: 42px;
 
       margin-bottom: 15px;
+
     }
 
 
@@ -278,6 +315,7 @@
         0 0 8px;
 
       font-size: 24px;
+
     }
 
 
@@ -288,6 +326,7 @@
       opacity: .55;
 
       font-size: 14px;
+
     }
 
 
@@ -319,6 +358,7 @@
       transition:
         transform .2s ease,
         opacity .2s ease;
+
     }
 
 
@@ -328,6 +368,7 @@
         translateY(-2px);
 
       opacity: .85;
+
     }
 
 
@@ -353,12 +394,14 @@
       z-index: 9999;
 
       padding: 20px;
+
     }
 
 
     .lightbox.active {
 
       display: flex;
+
     }
 
 
@@ -371,6 +414,7 @@
       object-fit: contain;
 
       border-radius: 6px;
+
     }
 
 
@@ -398,6 +442,7 @@
       font-size: 25px;
 
       cursor: pointer;
+
     }
 
 
@@ -426,6 +471,7 @@
       font-size: 14px;
 
       font-weight: 600;
+
     }
 
 
@@ -444,6 +490,7 @@
       font-size: 12px;
 
       letter-spacing: .5px;
+
     }
 
 
@@ -457,6 +504,7 @@
 
         padding:
           22px 10px 45px;
+
       }
 
 
@@ -466,18 +514,21 @@
           repeat(2, 1fr);
 
         gap: 7px;
+
       }
 
 
       .photo-card {
 
         border-radius: 7px;
+
       }
 
 
       .gallery-title {
 
         font-size: 32px;
+
       }
 
     }
@@ -598,9 +649,9 @@
 
   <script>
 
-    /* =========================
+    /* =====================================================
        SUPABASE CONFIG
-    ========================= */
+    ===================================================== */
 
     const SUPABASE_URL =
       "https://xlwcxuicdveqaxeeqawv.supabase.co";
@@ -617,29 +668,23 @@
       );
 
 
-    /* =========================
+
+    /* =====================================================
        GOOGLE DRIVE API KEY
-    ========================= */
+
+       IMPORTANT:
+       Paste your actual Google Drive API key between
+       the quotation marks.
+    ===================================================== */
 
     const GOOGLE_DRIVE_API_KEY =
       "AIzaSyAOs6C8MRVZHv094PK3RcSQC49alFhP48o";
 
 
-    console.log(
-      "Lumonere Studio Supabase connected"
-    );
 
-
-    console.log(
-      "Google Drive API configured:",
-      Boolean(GOOGLE_DRIVE_API_KEY)
-    );
-
-
-
-    /* =========================
+    /* =====================================================
        GET GALLERY CODE
-    ========================= */
+    ===================================================== */
 
     const params =
       new URLSearchParams(
@@ -652,9 +697,9 @@
 
 
 
-    /* =========================
+    /* =====================================================
        ELEMENTS
-    ========================= */
+    ===================================================== */
 
     const galleryInfo =
       document.getElementById(
@@ -693,198 +738,397 @@
 
 
 
-    /* =========================
-       LOAD GALLERY
-    ========================= */
+    /* =====================================================
+       SHOW MESSAGE
+    ===================================================== */
 
-    async function loadGallery() {
+    function showMessage(
+      title,
+      text,
+      icon = "📷"
+    ) {
 
-      if (!galleryCode) {
+      galleryContent.innerHTML = `
 
-        showMessage(
-          "Gallery Code Required",
-          "Please open your Lumonere Studio gallery link."
-        );
+        <div class="message">
 
-        return;
-      }
+          <div class="message-icon">
+            ${icon}
+          </div>
 
+          <h2>
+            ${escapeHtml(title)}
+          </h2>
 
-      console.log(
-        "Loading Lumonere Gallery:",
-        galleryCode
-      );
-
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .rpc(
-            "get_gallery_by_code",
-            {
-              p_code: galleryCode
-            }
-          );
-
-
-      console.log(
-        "Gallery DATA:",
-        data
-      );
-
-
-      console.log(
-        "Gallery ERROR:",
-        error
-      );
-
-
-      if (error) {
-
-        showMessage(
-          "Something went wrong",
-          "We couldn't load this gallery."
-        );
-
-        return;
-      }
-
-
-      if (
-        !data ||
-        data.length === 0
-      ) {
-
-        showMessage(
-          "Gallery Not Found",
-          "Please check your gallery code."
-        );
-
-        return;
-      }
-
-
-      const gallery =
-        data[0];
-
-
-
-      /* =========================
-         ACTIVE CHECK
-      ========================= */
-
-      if (
-        gallery.active === false
-      ) {
-
-        showMessage(
-          "Gallery Unavailable",
-          "This gallery is currently inactive."
-        );
-
-        return;
-      }
-
-
-
-      /* =========================
-         EXPIRATION CHECK
-      ========================= */
-
-      if (
-        gallery.expires_at
-      ) {
-
-        const expiration =
-          new Date(
-            gallery.expires_at
-          );
-
-
-        if (
-          expiration < new Date()
-        ) {
-
-          showMessage(
-            "Gallery Expired",
-            "This gallery is no longer available."
-          );
-
-          return;
-        }
-
-      }
-
-
-
-      /* =========================
-         SHOW INFO
-      ========================= */
-
-      galleryInfo.innerHTML = `
-
-        <div class="client-name">
-
-          ${escapeHtml(
-            gallery.client_name
-          )}
+          <p>
+            ${escapeHtml(text)}
+          </p>
 
         </div>
-
-
-        <div class="event-name">
-
-          ${escapeHtml(
-            gallery.event_name
-          )}
-
-        </div>
-
-
-        ${
-          gallery.event_date
-            ? `
-              <div class="event-date">
-
-                ${formatDate(
-                  gallery.event_date
-                )}
-
-              </div>
-            `
-            : ""
-        }
 
       `;
-
-
-
-      /* =========================
-         LOAD DRIVE PHOTOS
-      ========================= */
-
-      await loadDrivePhotos(
-        gallery
-      );
 
     }
 
 
 
-    /* =========================
+    /* =====================================================
+       SUPABASE RPC WITH TIMEOUT
+    ===================================================== */
+
+    async function getGalleryFromSupabase(
+      code
+    ) {
+
+      const rpcPromise =
+        supabaseClient
+          .rpc(
+            "get_gallery_by_code",
+            {
+              p_code: code
+            }
+          );
+
+
+      const timeoutPromise =
+        new Promise(
+          function(_, reject) {
+
+            setTimeout(
+              function() {
+
+                reject(
+                  new Error(
+                    "Supabase request timed out."
+                  )
+                );
+
+              },
+              8000
+            );
+
+          }
+        );
+
+
+      return await Promise.race([
+        rpcPromise,
+        timeoutPromise
+      ]);
+
+    }
+
+
+
+    /* =====================================================
+       LOAD GALLERY
+    ===================================================== */
+
+    async function loadGallery() {
+
+      /*
+       * No code in URL
+       */
+
+      if (!galleryCode) {
+
+        showMessage(
+          "Gallery Code Required",
+          "Please open your Lumonere Studio gallery link.",
+          "🔐"
+        );
+
+        return;
+
+      }
+
+
+
+      console.log(
+        "Loading gallery code:",
+        galleryCode
+      );
+
+
+
+      /*
+       * Show loading state
+       */
+
+      galleryContent.innerHTML = `
+
+        <div class="loading">
+
+          <div class="spinner"></div>
+
+          <div>
+            Loading your gallery...
+          </div>
+
+        </div>
+
+      `;
+
+
+
+      try {
+
+        /*
+         * Query Supabase
+         */
+
+        const result =
+          await getGalleryFromSupabase(
+            galleryCode
+          );
+
+
+        const data =
+          result?.data;
+
+
+        const error =
+          result?.error;
+
+
+
+        console.log(
+          "Supabase DATA:",
+          data
+        );
+
+
+        console.log(
+          "Supabase ERROR:",
+          error
+        );
+
+
+
+        /*
+         * Supabase returned an error
+         */
+
+        if (error) {
+
+          console.error(
+            "Supabase RPC error:",
+            error
+          );
+
+
+          showMessage(
+            "Unable to Load Gallery",
+            "There was a problem checking this gallery code. Please try again.",
+            "⚠️"
+          );
+
+          return;
+
+        }
+
+
+
+        /*
+         * No gallery found
+         */
+
+        if (
+          !data ||
+          !Array.isArray(data) ||
+          data.length === 0
+        ) {
+
+          showMessage(
+            "Gallery Not Found",
+            "Please check your gallery code.",
+            "🔍"
+          );
+
+          return;
+
+        }
+
+
+
+        /*
+         * Get first gallery
+         */
+
+        const gallery =
+          data[0];
+
+
+
+        /*
+         * Active check
+         */
+
+        if (
+          gallery.active === false
+        ) {
+
+          showMessage(
+            "Gallery Unavailable",
+            "This gallery is currently inactive.",
+            "🔒"
+          );
+
+          return;
+
+        }
+
+
+
+        /*
+         * Expiration check
+         */
+
+        if (
+          gallery.expires_at
+        ) {
+
+          const expiration =
+            new Date(
+              gallery.expires_at
+            );
+
+
+          if (
+            !Number.isNaN(
+              expiration.getTime()
+            ) &&
+            expiration < new Date()
+          ) {
+
+            showMessage(
+              "Gallery Expired",
+              "This gallery is no longer available.",
+              "⏰"
+            );
+
+            return;
+
+          }
+
+        }
+
+
+
+        /*
+         * Show gallery information
+         */
+
+        galleryInfo.innerHTML = `
+
+          <div class="client-name">
+
+            ${escapeHtml(
+              gallery.client_name
+            )}
+
+          </div>
+
+
+          <div class="event-name">
+
+            ${escapeHtml(
+              gallery.event_name
+            )}
+
+          </div>
+
+
+          ${
+            gallery.event_date
+              ? `
+                <div class="event-date">
+
+                  ${formatDate(
+                    gallery.event_date
+                  )}
+
+                </div>
+              `
+              : ""
+          }
+
+        `;
+
+
+
+        /*
+         * Load Google Drive
+         */
+
+        await loadDrivePhotos(
+          gallery
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Gallery loading error:",
+          error
+        );
+
+
+        /*
+         * If the Supabase request timed out
+         */
+
+        if (
+          error &&
+          error.message ===
+          "Supabase request timed out."
+        ) {
+
+          showMessage(
+            "Connection Timeout",
+            "The gallery server took too long to respond. Please refresh and try again.",
+            "⏳"
+          );
+
+          return;
+
+        }
+
+
+
+        showMessage(
+          "Something Went Wrong",
+          "We couldn't load this gallery. Please try again.",
+          "⚠️"
+        );
+
+      }
+
+    }
+
+
+
+    /* =====================================================
        GET DRIVE FOLDER ID
-    ========================= */
+    ===================================================== */
 
     function getDriveFolderId(
       driveUrl
     ) {
 
       if (!driveUrl) {
+
         return null;
+
       }
 
+
+      /*
+       * Normal Google Drive folder URL:
+       *
+       * https://drive.google.com/drive/folders/FOLDER_ID
+       */
 
       const match =
         driveUrl.match(
@@ -893,7 +1137,9 @@
 
 
       if (!match) {
+
         return null;
+
       }
 
 
@@ -903,13 +1149,17 @@
 
 
 
-    /* =========================
+    /* =====================================================
        LOAD GOOGLE DRIVE PHOTOS
-    ========================= */
+    ===================================================== */
 
     async function loadDrivePhotos(
       gallery
     ) {
+
+      /*
+       * Check API key
+       */
 
       if (
         !GOOGLE_DRIVE_API_KEY ||
@@ -918,13 +1168,20 @@
       ) {
 
         showMessage(
-          "Gallery Ready",
-          "Google Drive API key is not configured yet."
+          "Google Drive Not Configured",
+          "The Google Drive API key has not been added yet.",
+          "🔑"
         );
 
         return;
+
       }
 
+
+
+      /*
+       * Get folder ID
+       */
 
       const folderId =
         getDriveFolderId(
@@ -938,17 +1195,28 @@
       );
 
 
+
+      /*
+       * No folder ID
+       */
+
       if (!folderId) {
 
         showMessage(
           "Gallery Error",
-          "We couldn't determine the Google Drive folder."
+          "We couldn't determine the Google Drive folder.",
+          "⚠️"
         );
 
         return;
+
       }
 
 
+
+      /*
+       * Loading photos
+       */
 
       galleryContent.innerHTML = `
 
@@ -968,6 +1236,10 @@
 
       try {
 
+        /*
+         * Get Drive files
+         */
+
         const files =
           await getAllDriveImages(
             folderId
@@ -980,6 +1252,11 @@
         );
 
 
+
+        /*
+         * No photos
+         */
+
         if (
           !files ||
           files.length === 0
@@ -987,12 +1264,19 @@
 
           showMessage(
             "No Photos Yet",
-            "Your photos are not available yet."
+            "Your photos are not available yet.",
+            "📷"
           );
 
           return;
+
         }
 
+
+
+        /*
+         * Render photos
+         */
 
         renderPhotos(
           files,
@@ -1011,7 +1295,9 @@
 
         showMessage(
           "Unable to Load Photos",
-          "We couldn't load the photos from Google Drive."
+          error?.message ||
+          "We couldn't load the photos from Google Drive.",
+          "⚠️"
         );
 
       }
@@ -1020,9 +1306,9 @@
 
 
 
-    /* =========================
+    /* =====================================================
        GET ALL DRIVE IMAGES
-    ========================= */
+    ===================================================== */
 
     async function getAllDriveImages(
       folderId
@@ -1033,7 +1319,12 @@
       let pageToken = null;
 
 
+
       do {
+
+        /*
+         * Search only images inside this folder
+         */
 
         const query =
           encodeURIComponent(
@@ -1041,17 +1332,36 @@
           );
 
 
+
+        /*
+         * Google Drive API v3
+         */
+
         let url =
           "https://www.googleapis.com/drive/v3/files" +
-          "?q=" + query +
+
+          "?q=" +
+          query +
+
           "&key=" +
           encodeURIComponent(
             GOOGLE_DRIVE_API_KEY
           ) +
-          "&pageSize=100" +
-          "&orderBy=name" +
-          "&fields=nextPageToken,files(id,name,mimeType,size,thumbnailLink,webContentLink)";
 
+          "&pageSize=100" +
+
+          "&orderBy=name" +
+
+          "&fields=" +
+          encodeURIComponent(
+            "nextPageToken,files(id,name,mimeType,size,thumbnailLink,webContentLink)"
+          );
+
+
+
+        /*
+         * Pagination
+         */
 
         if (pageToken) {
 
@@ -1064,12 +1374,42 @@
         }
 
 
+
+        console.log(
+          "Calling Google Drive API..."
+        );
+
+
+
         const response =
-          await fetch(url);
+          await fetch(
+            url
+          );
 
 
-        const result =
-          await response.json();
+
+        /*
+         * Parse JSON
+         */
+
+        let result;
+
+
+        try {
+
+          result =
+            await response.json();
+
+        }
+
+        catch (jsonError) {
+
+          throw new Error(
+            "Google Drive returned an invalid response."
+          );
+
+        }
+
 
 
         console.log(
@@ -1078,18 +1418,34 @@
         );
 
 
+
+        /*
+         * API error
+         */
+
         if (!response.ok) {
 
+          const apiMessage =
+            result?.error?.message ||
+            `Google Drive API error (${response.status}).`;
+
+
           throw new Error(
-            result.error?.message ||
-            "Google Drive API request failed."
+            apiMessage
           );
 
         }
 
 
+
+        /*
+         * Add files
+         */
+
         if (
-          result.files
+          Array.isArray(
+            result.files
+          )
         ) {
 
           allFiles =
@@ -1100,6 +1456,11 @@
         }
 
 
+
+        /*
+         * Next page
+         */
+
         pageToken =
           result.nextPageToken ||
           null;
@@ -1109,15 +1470,16 @@
       while (pageToken);
 
 
+
       return allFiles;
 
     }
 
 
 
-    /* =========================
+    /* =====================================================
        RENDER PHOTOS
-    ========================= */
+    ===================================================== */
 
     function renderPhotos(
       files,
@@ -1134,6 +1496,11 @@
         "photo-grid";
 
 
+
+      /*
+       * Create photo cards
+       */
+
       files.forEach(
         function(file) {
 
@@ -1145,6 +1512,7 @@
 
           card.className =
             "photo-card";
+
 
 
           const image =
@@ -1162,12 +1530,9 @@
             "Lumonere Studio photo";
 
 
+
           /*
-           * Google Drive thumbnail endpoint.
-           *
-           * This allows the browser to
-           * display the image without
-           * exposing the actual file URL.
+           * Google Drive thumbnail
            */
 
           image.src =
@@ -1179,13 +1544,26 @@
             "&sz=w1600";
 
 
+
+          /*
+           * Fallback image URL
+           */
+
           image.onerror =
             function() {
 
-              /*
-               * If thumbnail fails,
-               * try Google's export URL.
-               */
+              if (
+                image.dataset.fallbackUsed
+              ) {
+
+                return;
+
+              }
+
+
+              image.dataset.fallbackUsed =
+                "true";
+
 
               image.src =
                 "https://drive.google.com/uc" +
@@ -1197,10 +1575,20 @@
             };
 
 
+
+          /*
+           * Add image to card
+           */
+
           card.appendChild(
             image
           );
 
+
+
+          /*
+           * Open lightbox
+           */
 
           card.addEventListener(
             "click",
@@ -1214,6 +1602,11 @@
           );
 
 
+
+          /*
+           * Add card to grid
+           */
+
           grid.appendChild(
             card
           );
@@ -1223,9 +1616,18 @@
 
 
 
+      /*
+       * Clear loading
+       */
+
       galleryContent.innerHTML =
         "";
 
+
+
+      /*
+       * Add grid
+       */
 
       galleryContent.appendChild(
         grid
@@ -1234,48 +1636,50 @@
 
 
       /*
-       * Keep a button to open
-       * the original Google Drive
-       * folder.
+       * Drive button
        */
 
-      const driveButton =
-        document.createElement(
-          "div"
+      if (driveUrl) {
+
+        const driveButton =
+          document.createElement(
+            "div"
+          );
+
+
+        driveButton.style.textAlign =
+          "center";
+
+
+        driveButton.innerHTML = `
+
+          <a
+            class="drive-button"
+            href="${escapeAttribute(
+              driveUrl
+            )}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Google Drive
+          </a>
+
+        `;
+
+
+        galleryContent.appendChild(
+          driveButton
         );
 
-
-      driveButton.style.textAlign =
-        "center";
-
-
-      driveButton.innerHTML = `
-
-        <a
-          class="drive-button"
-          href="${escapeAttribute(
-            driveUrl
-          )}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open Google Drive
-        </a>
-
-      `;
-
-
-      galleryContent.appendChild(
-        driveButton
-      );
+      }
 
     }
 
 
 
-    /* =========================
+    /* =====================================================
        LIGHTBOX
-    ========================= */
+    ===================================================== */
 
     function openLightbox(
       fileId
@@ -1290,6 +1694,7 @@
         "&sz=w2000";
 
 
+
       const downloadUrl =
         "https://drive.google.com/uc" +
         "?export=download&id=" +
@@ -1298,12 +1703,14 @@
         );
 
 
+
       lightboxImage.src =
         imageUrl;
 
 
       lightboxDownload.href =
         downloadUrl;
+
 
 
       lightbox.classList.add(
@@ -1324,9 +1731,9 @@
 
 
 
-    /* =========================
+    /* =====================================================
        CLOSE LIGHTBOX
-    ========================= */
+    ===================================================== */
 
     function closeLightbox() {
 
@@ -1355,6 +1762,10 @@
     }
 
 
+
+    /* =====================================================
+       LIGHTBOX EVENTS
+    ===================================================== */
 
     lightboxClose.addEventListener(
       "click",
@@ -1399,9 +1810,9 @@
 
 
 
-    /* =========================
-       HELPERS
-    ========================= */
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
 
     function escapeHtml(
       value
@@ -1448,6 +1859,10 @@
 
 
 
+    /* =====================================================
+       ESCAPE ATTRIBUTE
+    ===================================================== */
+
     function escapeAttribute(
       value
     ) {
@@ -1460,13 +1875,32 @@
 
 
 
+    /* =====================================================
+       FORMAT DATE
+    ===================================================== */
+
     function formatDate(
       date
     ) {
 
-      return new Date(
-        date
-      ).toLocaleDateString(
+      const parsedDate =
+        new Date(
+          date
+        );
+
+
+      if (
+        Number.isNaN(
+          parsedDate.getTime()
+        )
+      ) {
+
+        return "";
+
+      }
+
+
+      return parsedDate.toLocaleDateString(
         "en-PH",
         {
           year: "numeric",
@@ -1479,9 +1913,9 @@
 
 
 
-    /* =========================
-       START
-    ========================= */
+    /* =====================================================
+       START APPLICATION
+    ===================================================== */
 
     loadGallery();
 
@@ -1489,4 +1923,5 @@
 
 
 </body>
+
 </html>
