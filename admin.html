@@ -1252,7 +1252,7 @@
   ===================================================== -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/qrcode@1.5.4/build/qrcode.min.js"></script>
+
 
 
 
@@ -2576,159 +2576,99 @@
           code
         );
 
-      if (
-        typeof QRCode ===
-        "undefined"
-      ) {
+      const safeName =
+        (clientName || "gallery")
+          .replace(/[^a-z0-9]+/gi, "-")
+          .replace(/^-+|-+$/g, "")
+          .toLowerCase() || "gallery";
 
-        alert(
-          "QR Code library is not loaded. Please refresh the page and try again."
-        );
-
-        return;
-
-      }
-
-      const canvas =
-        document.createElement(
-          "canvas"
-        );
+      /*
+       * Generate the QR directly from QuickChart.
+       * This removes the dependency on the QRCode JavaScript library,
+       * so the button will not fail because a CDN library was blocked.
+       */
+      const qrUrl =
+        "https://quickchart.io/qr?text=" +
+        encodeURIComponent(link) +
+        "&size=1200&margin=4&ecLevel=H";
 
       try {
 
-        await QRCode.toCanvas(
-          canvas,
-          link,
-          {
-            width: 1200,
-            margin: 4,
-            errorCorrectionLevel: "H"
-          }
-        );
+        const response =
+          await fetch(qrUrl);
 
-        const ctx =
-          canvas.getContext(
-            "2d"
+        if (!response.ok) {
+          throw new Error(
+            "QR image request failed: " +
+            response.status
           );
+        }
 
-        const padding = 80;
-        const labelHeight = 150;
+        const blob =
+          await response.blob();
 
-        const output =
-          document.createElement(
-            "canvas"
-          );
+        const blobUrl =
+          URL.createObjectURL(blob);
 
-        output.width =
-          canvas.width +
-          padding * 2;
+        const download =
+          document.createElement("a");
 
-        output.height =
-          canvas.height +
-          padding * 2 +
-          labelHeight;
+        download.href =
+          blobUrl;
 
-        const outputCtx =
-          output.getContext(
-            "2d"
-          );
-
-        outputCtx.fillStyle =
-          "#ffffff";
-
-        outputCtx.fillRect(
-          0,
-          0,
-          output.width,
-          output.height
-        );
-
-        outputCtx.drawImage(
-          canvas,
-          padding,
-          padding
-        );
-
-        outputCtx.fillStyle =
-          "#000000";
-
-        outputCtx.textAlign =
-          "center";
-
-        outputCtx.font =
-          "bold 38px Arial";
-
-        outputCtx.fillText(
-          "LUMONERE STUDIO",
-          output.width / 2,
-          canvas.height +
-            padding +
-            65
-        );
-
-        outputCtx.font =
-          "28px Arial";
-
-        outputCtx.fillText(
-          clientName || "Gallery",
-          output.width / 2,
-          canvas.height +
-            padding +
-            110
-        );
-
-        const safeName =
-          String(
-            clientName || "gallery"
-          )
-            .replace(
-              /[^a-z0-9]+/gi,
-              "-"
-            )
-            .replace(
-              /^-+|-+$/g,
-              ""
-            )
-            .toLowerCase() ||
-          "gallery";
-
-        const linkElement =
-          document.createElement(
-            "a"
-          );
-
-        linkElement.download =
-          "lumonere-" +
+        download.download =
+          "Lumonere-" +
           safeName +
           "-" +
-          code.toLowerCase() +
-          "-qr.png";
+          code +
+          "-QR.png";
 
-        linkElement.href =
-          output.toDataURL(
-            "image/png"
-          );
+        document.body.appendChild(
+          download
+        );
 
-        linkElement.click();
+        download.click();
+
+        download.remove();
+
+        setTimeout(
+          function() {
+            URL.revokeObjectURL(blobUrl);
+          },
+          1000
+        );
 
       }
 
       catch (error) {
 
         console.error(
-          "QR generation error:",
+          "QR download error:",
           error
         );
 
-        alert(
-          "Unable to generate QR code."
-        );
+        /*
+         * Fallback: open the generated QR image directly
+         * if the browser blocks the image download request.
+         */
+        const opened =
+          window.open(
+            qrUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
+
+        if (!opened) {
+
+          alert(
+            "QR code generated, but your browser blocked the download window. Please allow pop-ups for this site and try again."
+          );
+
+        }
 
       }
 
     }
-
-
     /* =====================================================
        EDIT
     ===================================================== */
