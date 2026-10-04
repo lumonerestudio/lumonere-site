@@ -1,199 +1,1956 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods":
-    "POST, OPTIONS",
-};
+<!DOCTYPE html>
+<html lang="en">
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: corsHeaders,
-    });
-  }
+<head>
 
-  try {
-    if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({
-          error: "Method not allowed",
-        }),
-        {
-          status: 405,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080808"
+  >
+
+  <meta
+    name="description"
+    content="Lumonere Studio Photo Gallery"
+  >
+
+  <title>Lumonere Studio Gallery</title>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
     }
 
-    const body = await req.json();
 
-    console.log(
-      "Received body:",
-      JSON.stringify(body)
-    );
-
-    const folderId = body.folderId;
-
-    console.log(
-      "Received folderId:",
-      folderId
-    );
-
-    if (!folderId) {
-      return new Response(
-        JSON.stringify({
-          error: "folderId is required",
-          receivedBody: body,
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    html {
+      background: #080808;
     }
 
-    const GOOGLE_DRIVE_API_KEY =
-      Deno.env.get("GOOGLE_DRIVE_API_KEY");
 
-    if (!GOOGLE_DRIVE_API_KEY) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "Google Drive API key is not configured",
-        }),
-        {
-          status: 500,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    body {
+      margin: 0;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #202020 0%,
+          #0d0d0d 45%,
+          #080808 100%
+        );
+
+      color: #fff;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      min-height: 100vh;
     }
 
-    let allFiles = [];
-    let pageToken = null;
 
-    do {
-      const query = encodeURIComponent(
-        `'${folderId}' in parents and trashed = false and mimeType contains 'image/'`
+    /* =========================
+       PAGE
+    ========================= */
+
+    .gallery-page {
+
+      width: 100%;
+
+      max-width: 1100px;
+
+      margin: 0 auto;
+
+      padding: 28px 18px 60px;
+
+    }
+
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .gallery-header {
+
+      text-align: center;
+
+      margin-bottom: 30px;
+
+    }
+
+
+    .brand {
+
+      font-size: 13px;
+
+      letter-spacing: 4px;
+
+      font-weight: 600;
+
+      opacity: .65;
+
+      text-transform: uppercase;
+
+      margin-bottom: 10px;
+
+    }
+
+
+    .gallery-title {
+
+      margin: 0;
+
+      font-size: clamp(
+        28px,
+        7vw,
+        48px
       );
 
-      let url =
-        "https://www.googleapis.com/drive/v3/files" +
-        "?q=" +
-        query +
-        "&key=" +
-        encodeURIComponent(
-          GOOGLE_DRIVE_API_KEY
-        ) +
-        "&pageSize=100" +
-        "&orderBy=name" +
-        "&fields=nextPageToken,files(id,name,mimeType,size,thumbnailLink,webContentLink)";
+      font-weight: 700;
 
-      if (pageToken) {
-        url +=
-          "&pageToken=" +
-          encodeURIComponent(
-            pageToken
-          );
+      letter-spacing: -1px;
+
+    }
+
+
+    .gallery-title span {
+
+      font-weight: 300;
+
+    }
+
+
+    .client-name {
+
+      margin: 12px 0 4px;
+
+      font-size: 20px;
+
+      font-weight: 500;
+
+    }
+
+
+    .event-name {
+
+      margin: 0;
+
+      opacity: .65;
+
+      font-size: 14px;
+
+    }
+
+
+    .event-date {
+
+      margin: 8px 0 0;
+
+      opacity: .5;
+
+      font-size: 13px;
+
+    }
+
+
+    /* =========================
+       PHOTO GRID
+    ========================= */
+
+    .photo-grid {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 10px;
+
+      margin-top: 20px;
+
+    }
+
+
+    .photo-card {
+
+      position: relative;
+
+      overflow: hidden;
+
+      border-radius: 10px;
+
+      background: #151515;
+
+      aspect-ratio: 1 / 1;
+
+      cursor: pointer;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+
+    }
+
+
+    .photo-card:hover {
+
+      transform:
+        translateY(-2px);
+
+      box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.35);
+
+    }
+
+
+    .photo-card img {
+
+      width: 100%;
+
+      height: 100%;
+
+      display: block;
+
+      object-fit: cover;
+
+      transition:
+        transform .3s ease;
+
+    }
+
+
+    .photo-card:hover img {
+
+      transform:
+        scale(1.04);
+
+    }
+
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .loading {
+
+      text-align: center;
+
+      padding: 80px 20px;
+
+      opacity: .7;
+
+    }
+
+
+    .spinner {
+
+      width: 34px;
+
+      height: 34px;
+
+      border:
+        3px solid
+        rgba(255,255,255,.15);
+
+      border-top-color:
+        #fff;
+
+      border-radius: 50%;
+
+      animation:
+        spin .8s linear infinite;
+
+      margin:
+        0 auto 18px;
+
+    }
+
+
+    @keyframes spin {
+
+      to {
+        transform: rotate(360deg);
       }
 
+    }
+
+
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    .message {
+
+      text-align: center;
+
+      padding: 80px 20px;
+
+    }
+
+
+    .message-icon {
+
+      font-size: 42px;
+
+      margin-bottom: 15px;
+
+    }
+
+
+    .message h2 {
+
+      margin:
+        0 0 8px;
+
+      font-size: 24px;
+
+    }
+
+
+    .message p {
+
+      margin: 0;
+
+      opacity: .55;
+
+      font-size: 14px;
+
+    }
+
+
+    /* =========================
+       DRIVE BUTTON
+    ========================= */
+
+    .drive-button {
+
+      display: inline-block;
+
+      margin-top: 20px;
+
+      background: #fff;
+
+      color: #000;
+
+      text-decoration: none;
+
+      padding:
+        12px 22px;
+
+      border-radius: 30px;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      transition:
+        transform .2s ease,
+        opacity .2s ease;
+
+    }
+
+
+    .drive-button:hover {
+
+      transform:
+        translateY(-2px);
+
+      opacity: .85;
+
+    }
+
+
+    /* =========================
+       LIGHTBOX
+    ========================= */
+
+    .lightbox {
+
+      position: fixed;
+
+      inset: 0;
+
+      background:
+        rgba(0,0,0,.94);
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      z-index: 9999;
+
+      padding: 20px;
+
+    }
+
+
+    .lightbox.active {
+
+      display: flex;
+
+    }
+
+
+    .lightbox-image {
+
+      max-width: 95vw;
+
+      max-height: 85vh;
+
+      object-fit: contain;
+
+      border-radius: 6px;
+
+    }
+
+
+    .lightbox-close {
+
+      position: fixed;
+
+      top: 18px;
+
+      right: 20px;
+
+      width: 42px;
+
+      height: 42px;
+
+      border: 0;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,.12);
+
+      color: white;
+
+      font-size: 25px;
+
+      cursor: pointer;
+
+    }
+
+
+    .lightbox-download {
+
+      position: fixed;
+
+      bottom: 22px;
+
+      left: 50%;
+
+      transform:
+        translateX(-50%);
+
+      background: white;
+
+      color: black;
+
+      text-decoration: none;
+
+      padding:
+        12px 22px;
+
+      border-radius: 30px;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+    }
+
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .gallery-footer {
+
+      text-align: center;
+
+      margin-top: 45px;
+
+      opacity: .35;
+
+      font-size: 12px;
+
+      letter-spacing: .5px;
+
+    }
+
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+      .gallery-page {
+
+        padding:
+          22px 10px 45px;
+
+      }
+
+
+      .photo-grid {
+
+        grid-template-columns:
+          repeat(2, 1fr);
+
+        gap: 7px;
+
+      }
+
+
+      .photo-card {
+
+        border-radius: 7px;
+
+      }
+
+
+      .gallery-title {
+
+        font-size: 32px;
+
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <main class="gallery-page">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <header class="gallery-header">
+
+      <div class="brand">
+        LUMONERE STUDIO
+      </div>
+
+
+      <h1 class="gallery-title">
+        PHOTO <span>GALLERY</span>
+      </h1>
+
+
+      <div id="gallery-info"></div>
+
+    </header>
+
+
+    <!-- =========================
+         GALLERY CONTENT
+    ========================= -->
+
+    <section id="gallery-content">
+
+      <div class="loading">
+
+        <div class="spinner"></div>
+
+        <div>
+          Loading your gallery...
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <footer class="gallery-footer">
+
+      Making Your Moments Photo Worthy.
+
+    </footer>
+
+
+  </main>
+
+
+  <!-- =========================
+       LIGHTBOX
+  ========================= -->
+
+  <div
+    id="lightbox"
+    class="lightbox"
+    aria-hidden="true"
+  >
+
+    <button
+      id="lightbox-close"
+      class="lightbox-close"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+
+    <img
+      id="lightbox-image"
+      class="lightbox-image"
+      src=""
+      alt="Gallery photo"
+    >
+
+
+    <a
+      id="lightbox-download"
+      class="lightbox-download"
+      href=""
+      target="_blank"
+      rel="noopener noreferrer"
+      download
+    >
+      Download Photo
+    </a>
+
+  </div>
+
+
+  <!-- =========================
+       SUPABASE
+  ========================= -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+  <script>
+
+    /* =====================================================
+       SUPABASE CONFIG
+    ===================================================== */
+
+    const SUPABASE_URL =
+      "https://xlwcxuicdveqaxeeqawv.supabase.co";
+
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =====================================================
+       EDGE FUNCTION
+    ===================================================== */
+
+    const DRIVE_FUNCTION =
+      "get-gallery-photos";
+
+
+    /* =====================================================
+       GET GALLERY CODE
+    ===================================================== */
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const galleryCode =
+      params.get("code");
+
+
+    /* =====================================================
+       ELEMENTS
+    ===================================================== */
+
+    const galleryInfo =
+      document.getElementById(
+        "gallery-info"
+      );
+
+
+    const galleryContent =
+      document.getElementById(
+        "gallery-content"
+      );
+
+
+    const lightbox =
+      document.getElementById(
+        "lightbox"
+      );
+
+
+    const lightboxImage =
+      document.getElementById(
+        "lightbox-image"
+      );
+
+
+    const lightboxDownload =
+      document.getElementById(
+        "lightbox-download"
+      );
+
+
+    const lightboxClose =
+      document.getElementById(
+        "lightbox-close"
+      );
+
+
+    /* =====================================================
+       SHOW MESSAGE
+    ===================================================== */
+
+    function showMessage(
+      title,
+      text,
+      icon = "📷"
+    ) {
+
+      galleryContent.innerHTML = `
+
+        <div class="message">
+
+          <div class="message-icon">
+            ${icon}
+          </div>
+
+          <h2>
+            ${escapeHtml(title)}
+          </h2>
+
+          <p>
+            ${escapeHtml(text)}
+          </p>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* =====================================================
+       SUPABASE RPC
+    ===================================================== */
+
+    async function getGalleryFromSupabase(
+      code
+    ) {
+
+      const rpcPromise =
+        supabaseClient
+          .rpc(
+            "get_gallery_by_code",
+            {
+              p_code: code
+            }
+          );
+
+
+      const timeoutPromise =
+        new Promise(
+          function(_, reject) {
+
+            setTimeout(
+              function() {
+
+                reject(
+                  new Error(
+                    "Supabase request timed out."
+                  )
+                );
+
+              },
+              8000
+            );
+
+          }
+        );
+
+
+      return await Promise.race([
+        rpcPromise,
+        timeoutPromise
+      ]);
+
+    }
+
+
+    /* =====================================================
+       LOAD GALLERY
+    ===================================================== */
+
+    async function loadGallery() {
+
+      if (!galleryCode) {
+
+        showMessage(
+          "Gallery Code Required",
+          "Please open your Lumonere Studio gallery link.",
+          "🔐"
+        );
+
+        return;
+
+      }
+
+
       console.log(
-        "Requesting Google Drive folder:",
+        "Loading gallery code:",
+        galleryCode
+      );
+
+
+      galleryContent.innerHTML = `
+
+        <div class="loading">
+
+          <div class="spinner"></div>
+
+          <div>
+            Loading your gallery...
+          </div>
+
+        </div>
+
+      `;
+
+
+      try {
+
+        const result =
+          await getGalleryFromSupabase(
+            galleryCode
+          );
+
+
+        const data =
+          result?.data;
+
+
+        const error =
+          result?.error;
+
+
+        console.log(
+          "Supabase DATA:",
+          data
+        );
+
+
+        console.log(
+          "Supabase ERROR:",
+          error
+        );
+
+
+        if (error) {
+
+          console.error(
+            "Supabase RPC error:",
+            error
+          );
+
+
+          showMessage(
+            "Unable to Load Gallery",
+            "There was a problem checking this gallery code. Please try again.",
+            "⚠️"
+          );
+
+          return;
+
+        }
+
+
+        if (
+          !data ||
+          !Array.isArray(data) ||
+          data.length === 0
+        ) {
+
+          showMessage(
+            "Gallery Not Found",
+            "Please check your gallery code.",
+            "🔍"
+          );
+
+          return;
+
+        }
+
+
+        const gallery =
+          data[0];
+
+
+        /*
+         * Active check
+         */
+
+        if (
+          gallery.active === false
+        ) {
+
+          showMessage(
+            "Gallery Unavailable",
+            "This gallery is currently inactive.",
+            "🔒"
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * Expiration check
+         */
+
+        if (
+          gallery.expires_at
+        ) {
+
+          const expiration =
+            new Date(
+              gallery.expires_at
+            );
+
+
+          if (
+            !Number.isNaN(
+              expiration.getTime()
+            ) &&
+            expiration < new Date()
+          ) {
+
+            showMessage(
+              "Gallery Expired",
+              "This gallery is no longer available.",
+              "⏰"
+            );
+
+            return;
+
+          }
+
+        }
+
+
+        /*
+         * Gallery information
+         */
+
+        galleryInfo.innerHTML = `
+
+          <div class="client-name">
+            ${escapeHtml(
+              gallery.client_name
+            )}
+          </div>
+
+          <div class="event-name">
+            ${escapeHtml(
+              gallery.event_name
+            )}
+          </div>
+
+          ${
+            gallery.event_date
+              ? `
+                <div class="event-date">
+                  ${formatDate(
+                    gallery.event_date
+                  )}
+                </div>
+              `
+              : ""
+          }
+
+        `;
+
+
+        /*
+         * Load Drive photos through
+         * Supabase Edge Function
+         */
+
+        await loadDrivePhotos(
+          gallery
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Gallery loading error:",
+          error
+        );
+
+
+        if (
+          error &&
+          error.message ===
+          "Supabase request timed out."
+        ) {
+
+          showMessage(
+            "Connection Timeout",
+            "The gallery server took too long to respond. Please refresh and try again.",
+            "⏳"
+          );
+
+          return;
+
+        }
+
+
+        showMessage(
+          "Something Went Wrong",
+          "We couldn't load this gallery. Please try again.",
+          "⚠️"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       GET DRIVE FOLDER ID
+    ===================================================== */
+
+    function getDriveFolderId(
+      driveUrl
+    ) {
+
+      if (!driveUrl) {
+
+        return null;
+
+      }
+
+
+      const match =
+        driveUrl.match(
+          /\/folders\/([a-zA-Z0-9_-]+)/
+        );
+
+
+      if (!match) {
+
+        return null;
+
+      }
+
+
+      return match[1];
+
+    }
+
+
+    /* =====================================================
+       LOAD DRIVE PHOTOS
+       
+       IMPORTANT:
+       NO GOOGLE API KEY HERE.
+       
+       The Edge Function handles the
+       Google Drive API securely.
+    ===================================================== */
+
+    async function loadDrivePhotos(
+      gallery
+    ) {
+
+      const folderId =
+        getDriveFolderId(
+          gallery.drive_url
+        );
+
+
+      console.log(
+        "Google Drive Folder ID:",
         folderId
       );
 
-      const response =
-        await fetch(url);
 
-      const result =
-        await response.json();
+      if (!folderId) {
 
-      if (!response.ok) {
-        console.error(
-          "Google Drive API error:",
-          JSON.stringify(result)
+        showMessage(
+          "Gallery Error",
+          "We couldn't determine the Google Drive folder.",
+          "⚠️"
         );
 
-        return new Response(
-          JSON.stringify({
-            error:
-              result?.error?.message ||
-              "Google Drive API request failed",
-            details: result,
-          }),
-          {
-            status: response.status,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json",
-            },
-          }
-        );
+        return;
+
       }
 
-      if (result.files) {
-        allFiles =
-          allFiles.concat(
-            result.files
+
+      galleryContent.innerHTML = `
+
+        <div class="loading">
+
+          <div class="spinner"></div>
+
+          <div>
+            Loading your photos...
+          </div>
+
+        </div>
+
+      `;
+
+
+      try {
+
+        console.log(
+          "Calling Edge Function:",
+          DRIVE_FUNCTION
+        );
+
+
+        /*
+         * Call Supabase Edge Function
+         */
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .functions
+            .invoke(
+              DRIVE_FUNCTION,
+              {
+                body: {
+                  folder_id:
+                    folderId
+                }
+              }
+            );
+
+
+        console.log(
+          "Edge Function DATA:",
+          data
+        );
+
+
+        console.log(
+          "Edge Function ERROR:",
+          error
+        );
+
+
+        if (error) {
+
+          console.error(
+            "Edge Function error:",
+            error
           );
+
+
+          throw new Error(
+            error.message ||
+            "Unable to connect to the gallery photo service."
+          );
+
+        }
+
+
+        /*
+         * Accept several possible response formats.
+         *
+         * This makes the frontend more tolerant
+         * of the current Edge Function response.
+         */
+
+        let files = [];
+
+
+        if (
+          Array.isArray(data)
+        ) {
+
+          files =
+            data;
+
+        }
+
+        else if (
+          Array.isArray(
+            data?.files
+          )
+        ) {
+
+          files =
+            data.files;
+
+        }
+
+        else if (
+          Array.isArray(
+            data?.photos
+          )
+        ) {
+
+          files =
+            data.photos;
+
+        }
+
+        else if (
+          Array.isArray(
+            data?.data
+          )
+        ) {
+
+          files =
+            data.data;
+
+        }
+
+
+        console.log(
+          "Gallery files:",
+          files
+        );
+
+
+        if (
+          !files ||
+          files.length === 0
+        ) {
+
+          showMessage(
+            "No Photos Yet",
+            "Your photos are not available yet.",
+            "📷"
+          );
+
+          return;
+
+        }
+
+
+        renderPhotos(
+          files,
+          gallery.drive_url
+        );
+
       }
 
-      pageToken =
-        result.nextPageToken ||
-        null;
+      catch (error) {
 
-    } while (pageToken);
+        console.error(
+          "Google Drive loading error:",
+          error
+        );
 
-    console.log(
-      "Total files found:",
-      allFiles.length
+
+        showMessage(
+          "Unable to Load Photos",
+          error?.message ||
+          "We couldn't load the photos from Google Drive.",
+          "⚠️"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       GET IMAGE URL
+    ===================================================== */
+
+    function getImageUrl(
+      file
+    ) {
+
+      /*
+       * Prefer URLs supplied by the
+       * Edge Function.
+       */
+
+      if (
+        file.thumbnail_url
+      ) {
+
+        return file.thumbnail_url;
+
+      }
+
+
+      if (
+        file.thumbnailUrl
+      ) {
+
+        return file.thumbnailUrl;
+
+      }
+
+
+      if (
+        file.image_url
+      ) {
+
+        return file.image_url;
+
+      }
+
+
+      if (
+        file.imageUrl
+      ) {
+
+        return file.imageUrl;
+
+      }
+
+
+      if (
+        file.url
+      ) {
+
+        return file.url;
+
+      }
+
+
+      /*
+       * If Edge Function returns only
+       * the Google Drive file ID,
+       * use Drive thumbnail URL.
+       */
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w1600"
+        );
+
+      }
+
+
+      return "";
+
+    }
+
+
+    /* =====================================================
+       GET DOWNLOAD URL
+    ===================================================== */
+
+    function getDownloadUrl(
+      file
+    ) {
+
+      if (
+        file.download_url
+      ) {
+
+        return file.download_url;
+
+      }
+
+
+      if (
+        file.downloadUrl
+      ) {
+
+        return file.downloadUrl;
+
+      }
+
+
+      if (
+        file.webContentLink
+      ) {
+
+        return file.webContentLink;
+
+      }
+
+
+      if (
+        file.url
+      ) {
+
+        return file.url;
+
+      }
+
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/uc" +
+          "?export=download&id=" +
+          encodeURIComponent(
+            file.id
+          )
+        );
+
+      }
+
+
+      return "";
+
+    }
+
+
+    /* =====================================================
+       RENDER PHOTOS
+    ===================================================== */
+
+    function renderPhotos(
+      files,
+      driveUrl
+    ) {
+
+      const grid =
+        document.createElement(
+          "div"
+        );
+
+
+      grid.className =
+        "photo-grid";
+
+
+      files.forEach(
+        function(file) {
+
+          const imageUrl =
+            getImageUrl(
+              file
+            );
+
+
+          if (!imageUrl) {
+
+            return;
+
+          }
+
+
+          const card =
+            document.createElement(
+              "div"
+            );
+
+
+          card.className =
+            "photo-card";
+
+
+          const image =
+            document.createElement(
+              "img"
+            );
+
+
+          image.loading =
+            "lazy";
+
+
+          image.alt =
+            file.name ||
+            "Lumonere Studio photo";
+
+
+          image.src =
+            imageUrl;
+
+
+          /*
+           * If the Edge Function gives
+           * an alternate URL, use it.
+           */
+
+          image.onerror =
+            function() {
+
+              if (
+                image.dataset.fallbackUsed
+              ) {
+
+                return;
+
+              }
+
+
+              const fallback =
+                getDownloadUrl(
+                  file
+                );
+
+
+              if (
+                !fallback ||
+                fallback ===
+                image.src
+              ) {
+
+                return;
+
+              }
+
+
+              image.dataset.fallbackUsed =
+                "true";
+
+
+              image.src =
+                fallback;
+
+            };
+
+
+          card.appendChild(
+            image
+          );
+
+
+          card.addEventListener(
+            "click",
+            function() {
+
+              openLightbox(
+                file
+              );
+
+            }
+          );
+
+
+          grid.appendChild(
+            card
+          );
+
+        }
+      );
+
+
+      galleryContent.innerHTML =
+        "";
+
+
+      if (
+        grid.children.length === 0
+      ) {
+
+        showMessage(
+          "No Photos Available",
+          "The gallery service returned no usable photos.",
+          "📷"
+        );
+
+        return;
+
+      }
+
+
+      galleryContent.appendChild(
+        grid
+      );
+
+
+      /*
+       * Google Drive button
+       */
+
+      if (driveUrl) {
+
+        const driveButton =
+          document.createElement(
+            "div"
+          );
+
+
+        driveButton.style.textAlign =
+          "center";
+
+
+        driveButton.innerHTML = `
+
+          <a
+            class="drive-button"
+            href="${escapeAttribute(
+              driveUrl
+            )}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Google Drive
+          </a>
+
+        `;
+
+
+        galleryContent.appendChild(
+          driveButton
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       LIGHTBOX
+    ===================================================== */
+
+    function openLightbox(
+      file
+    ) {
+
+      const imageUrl =
+        getLargeImageUrl(
+          file
+        );
+
+
+      const downloadUrl =
+        getDownloadUrl(
+          file
+        );
+
+
+      if (!imageUrl) {
+
+        return;
+
+      }
+
+
+      lightboxImage.src =
+        imageUrl;
+
+
+      lightboxDownload.href =
+        downloadUrl;
+
+
+      lightbox.classList.add(
+        "active"
+      );
+
+
+      lightbox.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+
+      document.body.style.overflow =
+        "hidden";
+
+    }
+
+
+    /* =====================================================
+       LARGE IMAGE URL
+    ===================================================== */
+
+    function getLargeImageUrl(
+      file
+    ) {
+
+      if (
+        file.full_url
+      ) {
+
+        return file.full_url;
+
+      }
+
+
+      if (
+        file.fullUrl
+      ) {
+
+        return file.fullUrl;
+
+      }
+
+
+      if (
+        file.image_url
+      ) {
+
+        return file.image_url;
+
+      }
+
+
+      if (
+        file.imageUrl
+      ) {
+
+        return file.imageUrl;
+
+      }
+
+
+      if (
+        file.url
+      ) {
+
+        return file.url;
+
+      }
+
+
+      if (
+        file.id
+      ) {
+
+        return (
+          "https://drive.google.com/thumbnail" +
+          "?id=" +
+          encodeURIComponent(
+            file.id
+          ) +
+          "&sz=w2000"
+        );
+
+      }
+
+
+      return getImageUrl(
+        file
+      );
+
+    }
+
+
+    /* =====================================================
+       CLOSE LIGHTBOX
+    ===================================================== */
+
+    function closeLightbox() {
+
+      lightbox.classList.remove(
+        "active"
+      );
+
+
+      lightbox.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+
+      lightboxImage.src =
+        "";
+
+
+      lightboxDownload.href =
+        "";
+
+
+      document.body.style.overflow =
+        "";
+
+    }
+
+
+    /* =====================================================
+       LIGHTBOX EVENTS
+    ===================================================== */
+
+    lightboxClose.addEventListener(
+      "click",
+      closeLightbox
     );
 
-    return new Response(
-      JSON.stringify({
-        files: allFiles,
-      }),
-      {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          "Content-Type":
-            "application/json",
-        },
+
+    lightbox.addEventListener(
+      "click",
+      function(event) {
+
+        if (
+          event.target ===
+          lightbox
+        ) {
+
+          closeLightbox();
+
+        }
+
       }
     );
 
-  } catch (error) {
-    console.error(
-      "get-gallery-photos error:",
-      error
-    );
 
-    return new Response(
-      JSON.stringify({
-        error:
-          "Unable to load Google Drive photos",
-        details:
-          String(error),
-      }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type":
-            "application/json",
-        },
+    document.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key ===
+          "Escape"
+        ) {
+
+          closeLightbox();
+
+        }
+
       }
     );
-  }
-});
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHtml(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+
+        return "";
+
+      }
+
+
+      return String(value)
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    /* =====================================================
+       ESCAPE ATTRIBUTE
+    ===================================================== */
+
+    function escapeAttribute(
+      value
+    ) {
+
+      return escapeHtml(
+        value
+      );
+
+    }
+
+
+    /* =====================================================
+       FORMAT DATE
+    ===================================================== */
+
+    function formatDate(
+      date
+    ) {
+
+      const parsedDate =
+        new Date(
+          date
+        );
+
+
+      if (
+        Number.isNaN(
+          parsedDate.getTime()
+        )
+      ) {
+
+        return "";
+
+      }
+
+
+      return parsedDate.toLocaleDateString(
+        "en-PH",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       START APPLICATION
+    ===================================================== */
+
+    loadGallery();
+
+  </script>
+
+
+</body>
+
+</html>
