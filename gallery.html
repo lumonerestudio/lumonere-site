@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Lumonere Gallery</title>
+  <meta name="description" content="Lumonere Studio private photo gallery">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    .container {
+      width: min(1100px, 92%);
+      margin: auto;
+    }
+
+    header {
+      padding: 35px 0 20px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      margin-top: 8px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      margin: 25px 0;
+    }
+
+    .code-box {
+      display: flex;
+      gap: 10px;
+      max-width: 550px;
+      margin: 20px auto 0;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      text-transform: uppercase;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #222;
+    }
+
+    button {
+      padding: 15px 22px;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      min-height: 22px;
+      color: #777;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    .gallery-info {
+      display: none;
+      text-align: center;
+    }
+
+    .gallery-info h2 {
+      margin-bottom: 8px;
+    }
+
+    .event-date {
+      color: #777;
+      margin-bottom: 5px;
+    }
+
+    .drive-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: #222;
+      text-decoration: underline;
+    }
+
+    .photos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .photo-placeholder {
+      aspect-ratio: 1 / 1;
+      background: #eee;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 13px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 35px 0;
+      color: #999;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .code-box {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .photos {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="container">
+
+      <!-- Change this path if your logo has a different filename -->
+      <img
+        src="assets/lumonere-logo.png"
+        alt="Lumonere Studio"
+        class="logo"
+        onerror="this.style.display='none'"
+      >
+
+      <h1>Lumonere Studio</h1>
+      <div class="tagline">Making Your Moments Photo Worthy.</div>
+
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="card">
+
+      <h2 style="text-align:center;">Your Photo Gallery</h2>
+
+      <p style="text-align:center;color:#777;">
+        Enter the gallery code provided by Lumonere Studio.
+      </p>
+
+      <div class="code-box">
+        <input
+          type="text"
+          id="galleryCode"
+          placeholder="Enter gallery code"
+          maxlength="50"
+          autocomplete="off"
+        >
+
+        <button id="openGallery">
+          Open Gallery
+        </button>
+      </div>
+
+      <div id="message" class="message"></div>
+
+    </section>
+
+    <section id="galleryInfo" class="card gallery-info">
+
+      <h2 id="clientName"></h2>
+
+      <div id="eventName"></div>
+
+      <div id="eventDate" class="event-date"></div>
+
+      <a
+        id="driveLink"
+        class="drive-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open Google Drive
+      </a>
+
+      <div id="photos" class="photos">
+
+        <div class="photo-placeholder">
+          Photos will appear here
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    © Lumonere Studio · Making Your Moments Photo Worthy.
+  </footer>
+
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://xlwcxuicdveqaxeeqawv.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+    const codeInput = document.getElementById("galleryCode");
+    const openButton = document.getElementById("openGallery");
+    const message = document.getElementById("message");
+
+    const galleryInfo = document.getElementById("galleryInfo");
+    const clientName = document.getElementById("clientName");
+    const eventName = document.getElementById("eventName");
+    const eventDate = document.getElementById("eventDate");
+    const driveLink = document.getElementById("driveLink");
+
+
+    function showMessage(text, isError = false) {
+      message.textContent = text;
+      message.className = isError
+        ? "message error"
+        : "message";
+    }
+
+
+    async function loadGallery(code) {
+
+      code = code.trim().toUpperCase();
+
+      if (!code) {
+        showMessage("Please enter your gallery code.", true);
+        return;
+      }
+
+      showMessage("Checking gallery...");
+      galleryInfo.style.display = "none";
+
+      try {
+
+        const { data, error } = await supabaseClient
+          .rpc("get_gallery_by_code", {
+            p_code: code
+          });
+
+        console.log("Gallery data:", data);
+        console.log("Gallery error:", error);
+
+        if (error) {
+          console.error(error);
+          showMessage(
+            "Unable to connect to the gallery service.",
+            true
+          );
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          showMessage(
+            "Gallery not found, expired, or inactive.",
+            true
+          );
+          return;
+        }
+
+        const gallery = data[0];
+
+        clientName.textContent =
+          gallery.client_name || "Lumonere Studio Client";
+
+        eventName.textContent =
+          gallery.event_name || "";
+
+        if (gallery.event_date) {
+
+          const date = new Date(
+            gallery.event_date + "T00:00:00"
+          );
+
+          eventDate.textContent =
+            date.toLocaleDateString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            });
+
+        } else {
+
+          eventDate.textContent = "";
+
+        }
+
+        if (gallery.drive_url) {
+
+          driveLink.href = gallery.drive_url;
+          driveLink.style.display = "inline-block";
+
+        } else {
+
+          driveLink.style.display = "none";
+
+        }
+
+        galleryInfo.style.display = "block";
+
+        showMessage("");
+
+        // Put the code in the URL so the gallery
+        // can be opened directly later.
+        const newUrl =
+          window.location.pathname +
+          "?code=" +
+          encodeURIComponent(code);
+
+        window.history.replaceState({}, "", newUrl);
+
+      } catch (err) {
+
+        console.error(err);
+
+        showMessage(
+          "Something went wrong while loading the gallery.",
+          true
+        );
+
+      }
+
+    }
+
+
+    openButton.addEventListener("click", () => {
+      loadGallery(codeInput.value);
+    });
+
+
+    codeInput.addEventListener("keydown", (event) => {
+
+      if (event.key === "Enter") {
+        loadGallery(codeInput.value);
+      }
+
+    });
+
+
+    // Automatically open gallery if URL contains:
+    // gallery.html?code=TEST123
+
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
+    const urlCode = params.get("code");
+
+    if (urlCode) {
+
+      codeInput.value = urlCode;
+      loadGallery(urlCode);
+
+    }
+
+  </script>
+
+</body>
+</html>
