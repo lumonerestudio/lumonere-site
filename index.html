@@ -6,312 +6,816 @@
   <meta name="theme-color" content="#080808">
   <meta name="description" content="Lumonere Studio — #MakeItMemorable">
   <title>Lumonere Studio</title>
+
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* =========================
+       ADMIN LOGIN
+    ========================= */
+
+    .admin-login {
+      margin-top: 22px;
+      text-align: center;
+    }
+
+    .admin-login a {
+      display: inline-block;
+      color: rgba(255,255,255,.35);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 6px 10px;
+      transition: color .2s ease, opacity .2s ease;
+    }
+
+    .admin-login a:hover {
+      color: rgba(255,255,255,.75);
+    }
+  </style>
 </head>
+
 <body>
+
   <main class="page">
+
+    <!-- =========================
+         HERO
+    ========================= -->
+
     <section class="hero" aria-label="Lumonere Studio">
-      <a class="hero-link" href="https://www.facebook.com/lumonerestudio" target="_blank" rel="noopener noreferrer" aria-label="Visit Lumonere Studio on Facebook">
-        <img src="assets/lumonere-hero.jpeg" alt="Lumonere Studio" class="hero-image">
+
+      <a
+        class="hero-link"
+        href="https://www.facebook.com/lumonerestudio"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Visit Lumonere Studio on Facebook"
+      >
+
+        <img
+          src="assets/lumonere-hero.jpeg"
+          alt="Lumonere Studio"
+          class="hero-image"
+        >
+
       </a>
+
     </section>
 
+
+    <!-- =========================
+         CONTENT
+    ========================= -->
+
     <section class="content">
-      <p class="eyebrow">WELCOME TO</p>
-      <h1>LUMONERE <span>STUDIO</span></h1>
-      <p class="tagline">#MakeItMemorable</p>
 
-      <div class="links" aria-label="Lumonere Studio links">
+      <p class="eyebrow">
+        WELCOME TO
+      </p>
 
-        <a class="social" href="https://www.facebook.com/lumonerestudio" target="_blank" rel="noopener noreferrer" aria-label="Open Lumonere Studio Facebook">
-          <span class="icon facebook-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.6 1.7-1.6h1.8V3.8c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.3H8.2v3h2.6v8h2.7z"/></svg>
+      <h1>
+        LUMONERE <span>STUDIO</span>
+      </h1>
+
+      <p class="tagline">
+        #MakeItMemorable
+      </p>
+
+
+      <!-- =========================
+           SOCIAL LINKS
+      ========================= -->
+
+      <div
+        class="links"
+        aria-label="Lumonere Studio links"
+      >
+
+        <!-- FACEBOOK -->
+
+        <a
+          class="social"
+          href="https://www.facebook.com/lumonerestudio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open Lumonere Studio Facebook"
+        >
+
+          <span
+            class="icon facebook-icon"
+            aria-hidden="true"
+          >
+
+            <svg viewBox="0 0 24 24">
+              <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.6 1.7-1.6h1.8V3.8c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.3H8.2v3h2.6v8h2.7z"/>
+            </svg>
+
           </span>
-          <span><strong>Facebook</strong><small>@lumonerestudio</small></span>
-          <span class="arrow">↗</span>
+
+          <span>
+            <strong>Facebook</strong>
+            <small>@lumonerestudio</small>
+          </span>
+
+          <span class="arrow">
+            ↗
+          </span>
+
         </a>
 
-        <a class="social" href="https://www.instagram.com/lumonerestudio" target="_blank" rel="noopener noreferrer" aria-label="Open Lumonere Studio Instagram">
-          <span class="icon instagram-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.7" r="1"/></svg>
+
+        <!-- INSTAGRAM -->
+
+        <a
+          class="social"
+          href="https://www.instagram.com/lumonerestudio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open Lumonere Studio Instagram"
+        >
+
+          <span
+            class="icon instagram-icon"
+            aria-hidden="true"
+          >
+
+            <svg viewBox="0 0 24 24">
+              <rect
+                x="4"
+                y="4"
+                width="16"
+                height="16"
+                rx="4"
+              />
+
+              <circle
+                cx="12"
+                cy="12"
+                r="3.6"
+              />
+
+              <circle
+                cx="17.4"
+                cy="6.7"
+                r="1"
+              />
+
+            </svg>
+
           </span>
-          <span><strong>Instagram</strong><small>@lumonerestudio</small></span>
-          <span class="arrow">↗</span>
+
+          <span>
+            <strong>Instagram</strong>
+            <small>@lumonerestudio</small>
+          </span>
+
+          <span class="arrow">
+            ↗
+          </span>
+
         </a>
 
-        <a class="social" href="https://www.tiktok.com/@lumonerestudio26" target="_blank" rel="noopener noreferrer" aria-label="Open Lumonere Studio TikTok">
-          <span class="icon tiktok-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M14.3 4c.3 2 1.5 3.3 3.5 3.5v3.1c-1.5-.1-2.7-.6-3.5-1.3v5.4a5.3 5.3 0 1 1-4.5-5.2v3.2a2.2 2.2 0 1 0 1.4 2V4h3.1z"/></svg>
+
+        <!-- TIKTOK -->
+
+        <a
+          class="social"
+          href="https://www.tiktok.com/@lumonereestudio26"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open Lumonere Studio TikTok"
+        >
+
+          <span
+            class="icon tiktok-icon"
+            aria-hidden="true"
+          >
+
+            <svg viewBox="0 0 24 24">
+              <path d="M14.3 4c.3 2 1.5 3.3 3.5 3.5v3.1c-1.5-.1-2.7-.6-3.5-1.3v5.4a5.3 5.3 0 1 1-4.5-5.2v3.2a2.2 2.2 0 1 0 1.4 2V4h3.1z"/>
+            </svg>
+
           </span>
-          <span><strong>TikTok</strong><small>@lumonerestudio26</small></span>
-          <span class="arrow">↗</span>
+
+          <span>
+            <strong>TikTok</strong>
+            <small>@lumonereestudio26</small>
+          </span>
+
+          <span class="arrow">
+            ↗
+          </span>
+
         </a>
 
-        <a class="social" href="mailto:lumonerestudio@gmail.com" data-email="lumonerestudio@gmail.com" aria-label="Email Lumonere Studio">
-          <span class="icon gmail-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M3.5 6.2A2.2 2.2 0 0 1 5.7 4h12.6a2.2 2.2 0 0 1 2.2 2.2v11.6a2.2 2.2 0 0 1-2.2 2.2H5.7a2.2 2.2 0 0 1-2.2-2.2V6.2zm2.2.2v11.4h12.6V6.4L12 11.1 5.7 6.4zm1.1-.2L12 9.9l5.2-3.7H6.8z"/></svg>
+
+        <!-- EMAIL -->
+
+        <a
+          class="social"
+          href="mailto:lumonerestudio@gmail.com"
+          data-email="lumonerestudio@gmail.com"
+          aria-label="Email Lumonere Studio"
+        >
+
+          <span
+            class="icon gmail-icon"
+            aria-hidden="true"
+          >
+
+            <svg viewBox="0 0 24 24">
+
+              <path d="M3.5 6.2A2.2 2.2 0 0 1 5.7 4h12.6a2.2 2.2 0 0 1 2.2 2.2v11.6a2.2 2.2 0 0 1-2.2 2.2H5.7a2.2 2.2 0 0 1-2.2-2.2V6.2zm2.2.2v11.4h12.6V6.4L12 11.1 5.7 6.4zm1.1-.2L12 9.9l5.2-3.7H6.8z"/>
+
+            </svg>
+
           </span>
-          <span><strong>Email Us</strong><small>lumonerestudio@gmail.com</small></span>
-          <span class="arrow">↗</span>
+
+          <span>
+            <strong>Email Us</strong>
+            <small>lumonerestudio@gmail.com</small>
+          </span>
+
+          <span class="arrow">
+            ↗
+          </span>
+
         </a>
 
-        <div class="phone-card" aria-label="Contact Lumonere Studio by phone">
-          <span class="icon phone-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M7.1 3.8 9.8 3a1.4 1.4 0 0 1 1.7.8l1.2 3a1.4 1.4 0 0 1-.4 1.6l-1.6 1.3a12.7 12.7 0 0 0 3.7 3.7l1.3-1.6a1.4 1.4 0 0 1 1.6-.4l3 1.2a1.4 1.4 0 0 1 .8 1.7l-.8 2.7a2.3 2.3 0 0 1-2.3 1.6C10.6 18.4 5.6 13.4 4.4 5.9a2.3 2.3 0 0 1 1.6-2.1l1.1-.3z"/></svg>
+
+        <!-- PHONE -->
+
+        <div
+          class="phone-card"
+          aria-label="Contact Lumonere Studio by phone"
+        >
+
+          <span
+            class="icon phone-icon"
+            aria-hidden="true"
+          >
+
+            <svg viewBox="0 0 24 24">
+
+              <path d="M7.1 3.8 9.8 3a1.4 1.4 0 0 1 1.7.8l1.2 3a1.4 1.4 0 0 1-.4 1.6l-1.6 1.3a12.7 12.7 0 0 0 3.7 3.7l1.3-1.6a1.4 1.4 0 0 1 1.6-.4l3 1.2a1.4 1.4 0 0 1 .8 1.7l-.8 2.7a2.3 2.3 0 0 1-2.3 1.6C10.6 18.4 5.6 13.4 4.4 5.9a2.3 2.3 0 0 1 1.6-2.1l1.1-.3z"/>
+
+            </svg>
+
           </span>
-          <span class="phone-info"><strong>Call or Text</strong><small>0921 7171 451</small></span>
+
+
+          <span class="phone-info">
+
+            <strong>
+              Call or Text
+            </strong>
+
+            <small>
+              0921 7171 451
+            </small>
+
+          </span>
+
+
           <span class="phone-actions">
-            <a class="mini-action" href="tel:+639217171451" aria-label="Call 0921 7171 451">
-              <svg viewBox="0 0 24 24"><path d="M7.1 3.8 9.8 3a1.4 1.4 0 0 1 1.7.8l1.2 3a1.4 1.4 0 0 1-.4 1.6l-1.6 1.3a12.7 12.7 0 0 0 3.7 3.7l1.3-1.6a1.4 1.4 0 0 1 1.6-.4l3 1.2a1.4 1.4 0 0 1 .8 1.7l-.8 2.7a2.3 2.3 0 0 1-2.3 1.6C10.6 18.4 5.6 13.4 4.4 5.9a2.3 2.3 0 0 1 1.6-2.1l1.1-.3z"/></svg>
-              <span>Call</span>
+
+            <a
+              class="mini-action"
+              href="tel:+639217171451"
+              aria-label="Call 0921 7171 451"
+            >
+
+              <svg viewBox="0 0 24 24">
+                <path d="M7.1 3.8 9.8 3a1.4 1.4 0 0 1 1.7.8l1.2 3a1.4 1.4 0 0 1-.4 1.6l-1.6 1.3a12.7 12.7 0 0 0 3.7 3.7l1.3-1.6a1.4 1.4 0 0 1 1.6-.4l3 1.2a1.4 1.4 0 0 1 .8 1.7l-.8 2.7a2.3 2.3 0 0 1-2.3 1.6C10.6 18.4 5.6 13.4 4.4 5.9a2.3 2.3 0 0 1 1.6-2.1l1.1-.3z"/>
+              </svg>
+
+              <span>
+                Call
+              </span>
+
             </a>
-            <a class="mini-action" href="sms:+639217171451" aria-label="Text 0921 7171 451">
-              <svg viewBox="0 0 24 24"><path d="M4 5.2h16a1.8 1.8 0 0 1 1.8 1.8v9a1.8 1.8 0 0 1-1.8 1.8H9l-4.5 3v-3.1A1.8 1.8 0 0 1 2.2 16V7A1.8 1.8 0 0 1 4 5.2z"/></svg>
-              <span>Text</span>
+
+
+            <a
+              class="mini-action"
+              href="sms:+639217171451"
+              aria-label="Text 0921 7171 451"
+            >
+
+              <svg viewBox="0 0 24 24">
+                <path d="M4 5.2h16a1.8 1.8 0 0 1 1.8 1.8v9a1.8 1.8 0 0 1-1.8 1.8H9l-4.5 3v-3.1A1.8 1.8 0 0 1 2.2 16V7A1.8 1.8 0 0 1 4 5.2z"/>
+              </svg>
+
+              <span>
+                Text
+              </span>
+
             </a>
+
           </span>
+
         </div>
 
       </div>
 
-      <p class="hint">Tap any button to connect with Lumonere Studio.</p>
+
+      <p class="hint">
+        Tap any button to connect with Lumonere Studio.
+      </p>
+
+
+      <!-- =========================
+           ADMIN LOGIN
+      ========================= -->
+
+      <div class="admin-login">
+
+        <a
+          href="admin.html"
+          aria-label="Lumonere Studio Admin Login"
+        >
+          Admin Login
+        </a>
+
+      </div>
+
     </section>
 
-    <footer>© <span id="year"></span> Lumonere Studio</footer>
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
+
+    <footer>
+      © <span id="year"></span> Lumonere Studio
+    </footer>
+
   </main>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
 
-    // On desktop, open Gmail web. On phones, try the Gmail app first,
-    // then fall back to the device's normal mail app if Gmail is unavailable.
-    const emailLink = document.querySelector("[data-email]");
-    emailLink.addEventListener("click", function (event) {
-      const email = this.dataset.email;
-      if (window.matchMedia("(min-width: 700px)").matches) {
-        event.preventDefault();
-        window.open(
-          "https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(email),
-          "_blank",
-          "noopener"
-        );
-      } else {
-        event.preventDefault();
-        let fallback = setTimeout(() => {
-          window.location.href = "mailto:" + email;
-        }, 900);
-        window.location.href = "googlegmail://co?to=" + encodeURIComponent(email);
-        window.addEventListener("pagehide", () => clearTimeout(fallback), { once: true });
-      }
-    });
+  <!-- =========================
+       YEAR
+  ========================= -->
+
+  <script>
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
   </script>
+
+
+  <!-- =========================
+       EMAIL HANDLER
+  ========================= -->
+
+  <script>
+
+    // On desktop, open Gmail web.
+    // On phones, try the Gmail app first,
+    // then fall back to the device's normal mail app.
+
+    const emailLink =
+      document.querySelector("[data-email]");
+
+
+    emailLink.addEventListener(
+      "click",
+      function(event) {
+
+        const email =
+          this.dataset.email;
+
+
+        if (
+          window.matchMedia(
+            "(min-width: 700px)"
+          ).matches
+        ) {
+
+          event.preventDefault();
+
+
+          window.open(
+            "https://mail.google.com/mail/?view=cm&fs=1&to=" +
+            encodeURIComponent(email),
+
+            "_blank",
+
+            "noopener"
+          );
+
+        }
+
+        else {
+
+          event.preventDefault();
+
+
+          let fallback =
+            setTimeout(
+              () => {
+
+                window.location.href =
+                  "mailto:" + email;
+
+              },
+              900
+            );
+
+
+          window.location.href =
+            "googlegmail://co?to=" +
+            encodeURIComponent(email);
+
+
+          window.addEventListener(
+            "pagehide",
+            () => clearTimeout(fallback),
+            { once: true }
+          );
+
+        }
+
+      }
+    );
+
+  </script>
+
+
+  <!-- =========================
+       SUPABASE
+  ========================= -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-const SUPABASE_URL = "https://xlwcxuicdveqaxeeqawv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+  <script>
 
-console.log("Lumonere Studio Supabase connected");
+    const SUPABASE_URL =
+      "https://xlwcxuicdveqaxeeqawv.supabase.co";
 
 
-/* =========================
-   GALLERY LOADER
-========================= */
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
 
-async function loadGallery() {
 
-  // Get ?code=TEST123 from URL
-  const params = new URLSearchParams(window.location.search);
-  const galleryCode = params.get("code");
-
-  if (!galleryCode) {
-    console.log("No gallery code in URL.");
-    return;
-  }
-
-  console.log("Loading gallery:", galleryCode);
-
-  const { data, error } = await supabaseClient
-    .rpc("get_gallery_by_code", {
-      p_code: galleryCode
-    });
-
-  console.log("Gallery DATA:", data);
-  console.log("Gallery ERROR:", error);
-
-  if (error) {
-    showGalleryMessage(
-      "Something went wrong",
-      "We couldn't load this gallery."
-    );
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    showGalleryMessage(
-      "Gallery not found",
-      "Please check your gallery code."
-    );
-    return;
-  }
-
-  const gallery = data[0];
-
-  // Check active status
-  if (gallery.active === false) {
-    showGalleryMessage(
-      "Gallery unavailable",
-      "This gallery is currently inactive."
-    );
-    return;
-  }
-
-  // Check expiration
-  if (gallery.expires_at) {
-    const expiration = new Date(gallery.expires_at);
-
-    if (expiration < new Date()) {
-      showGalleryMessage(
-        "Gallery expired",
-        "This gallery is no longer available."
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
       );
-      return;
-    }
-  }
-
-  // Show gallery
-  showGallery(gallery);
-}
 
 
-/* =========================
-   SHOW GALLERY
-========================= */
+    console.log(
+      "Lumonere Studio Supabase connected"
+    );
 
-function showGallery(gallery) {
 
-  const container = document.createElement("div");
+    /* =========================
+       GALLERY LOADER
+    ========================= */
 
-  container.id = "gallery-result";
+    async function loadGallery() {
 
-  container.innerHTML = `
-    <div class="gallery-card">
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
 
-      <div class="gallery-icon">📸</div>
 
-      <h2>${escapeHtml(gallery.client_name)}</h2>
+      const galleryCode =
+        params.get("code");
 
-      <p class="gallery-event">
-        ${escapeHtml(gallery.event_name)}
-      </p>
 
-      ${
-        gallery.event_date
-          ? `<p class="gallery-date">
-              ${formatDate(gallery.event_date)}
-             </p>`
-          : ""
+      if (!galleryCode) {
+
+        console.log(
+          "No gallery code in URL."
+        );
+
+        return;
+
       }
 
-      <a
-        class="gallery-button"
-        href="${escapeAttribute(gallery.drive_url)}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        📷 VIEW MY PHOTOS
-      </a>
 
-      <p class="gallery-code">
-        Gallery Code: ${escapeHtml(gallery.gallery_code)}
-      </p>
-
-    </div>
-  `;
-
-  document.body.appendChild(container);
-}
+      console.log(
+        "Loading gallery:",
+        galleryCode
+      );
 
 
-/* =========================
-   MESSAGE
-========================= */
-
-function showGalleryMessage(title, message) {
-
-  const container = document.createElement("div");
-
-  container.id = "gallery-result";
-
-  container.innerHTML = `
-    <div class="gallery-card">
-
-      <div class="gallery-icon">📸</div>
-
-      <h2>${escapeHtml(title)}</h2>
-
-      <p class="gallery-event">
-        ${escapeHtml(message)}
-      </p>
-
-    </div>
-  `;
-
-  document.body.appendChild(container);
-}
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .rpc(
+            "get_gallery_by_code",
+            {
+              p_code:
+                galleryCode
+            }
+          );
 
 
-/* =========================
-   HELPERS
-========================= */
-
-function escapeHtml(value) {
-
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+      console.log(
+        "Gallery DATA:",
+        data
+      );
 
 
-function escapeAttribute(value) {
+      console.log(
+        "Gallery ERROR:",
+        error
+      );
 
-  return escapeHtml(value);
-}
+
+      if (error) {
+
+        showGalleryMessage(
+          "Something went wrong",
+          "We couldn't load this gallery."
+        );
+
+        return;
+
+      }
 
 
-function formatDate(date) {
+      if (
+        !data ||
+        data.length === 0
+      ) {
 
-  return new Date(date).toLocaleDateString(
-    "en-PH",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
+        showGalleryMessage(
+          "Gallery not found",
+          "Please check your gallery code."
+        );
+
+        return;
+
+      }
+
+
+      const gallery =
+        data[0];
+
+
+      if (
+        gallery.active === false
+      ) {
+
+        showGalleryMessage(
+          "Gallery unavailable",
+          "This gallery is currently inactive."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        gallery.expires_at
+      ) {
+
+        const expiration =
+          new Date(
+            gallery.expires_at
+          );
+
+
+        if (
+          expiration < new Date()
+        ) {
+
+          showGalleryMessage(
+            "Gallery expired",
+            "This gallery is no longer available."
+          );
+
+          return;
+
+        }
+
+      }
+
+
+      showGallery(
+        gallery
+      );
+
     }
-  );
-}
 
 
-/* =========================
-   START
-========================= */
+    /* =========================
+       SHOW GALLERY
+    ========================= */
 
-loadGallery();
+    function showGallery(
+      gallery
+    ) {
 
-</script>
+      const container =
+        document.createElement(
+          "div"
+        );
+
+
+      container.id =
+        "gallery-result";
+
+
+      container.innerHTML = `
+
+        <div class="gallery-card">
+
+          <div class="gallery-icon">
+            📸
+          </div>
+
+          <h2>
+            ${escapeHtml(
+              gallery.client_name
+            )}
+          </h2>
+
+          <p class="gallery-event">
+            ${escapeHtml(
+              gallery.event_name
+            )}
+          </p>
+
+          ${
+            gallery.event_date
+              ? `
+                <p class="gallery-date">
+                  ${formatDate(
+                    gallery.event_date
+                  )}
+                </p>
+              `
+              : ""
+          }
+
+          <a
+            class="gallery-button"
+            href="${escapeAttribute(
+              gallery.drive_url
+            )}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            📷 VIEW MY PHOTOS
+          </a>
+
+          <p class="gallery-code">
+            Gallery Code:
+            ${escapeHtml(
+              gallery.gallery_code
+            )}
+          </p>
+
+        </div>
+
+      `;
+
+
+      document.body.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    function showGalleryMessage(
+      title,
+      message
+    ) {
+
+      const container =
+        document.createElement(
+          "div"
+        );
+
+
+      container.id =
+        "gallery-result";
+
+
+      container.innerHTML = `
+
+        <div class="gallery-card">
+
+          <div class="gallery-icon">
+            📸
+          </div>
+
+          <h2>
+            ${escapeHtml(title)}
+          </h2>
+
+          <p class="gallery-event">
+            ${escapeHtml(message)}
+          </p>
+
+        </div>
+
+      `;
+
+
+      document.body.appendChild(
+        container
+      );
+
+    }
+
+
+    /* =========================
+       HELPERS
+    ========================= */
+
+    function escapeHtml(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+
+        return "";
+
+      }
+
+
+      return String(value)
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    function escapeAttribute(
+      value
+    ) {
+
+      return escapeHtml(
+        value
+      );
+
+    }
+
+
+    function formatDate(
+      date
+    ) {
+
+      return new Date(
+        date
+      ).toLocaleDateString(
+        "en-PH",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }
+      );
+
+    }
+
+
+    /* =========================
+       START
+    ========================= */
+
+    loadGallery();
+
+  </script>
 
 </body>
 </html>
