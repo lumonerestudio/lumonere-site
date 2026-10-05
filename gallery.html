@@ -735,6 +735,69 @@
 
 
     /* =====================================================
+       DOWNLOAD / SCROLL POSITION MEMORY
+
+       Some mobile browsers ignore target="_blank" / download
+       for Google Drive files and may navigate or reload the
+       current page. Save the user's album position so the
+       gallery can return to the same spot after that happens.
+    ===================================================== */
+
+    history.scrollRestoration = "manual";
+
+    const GALLERY_STATE_KEY =
+      "lumonere_gallery_state_" + (galleryCode || "none");
+
+    function saveGalleryPosition() {
+      try {
+        sessionStorage.setItem(
+          GALLERY_STATE_KEY,
+          JSON.stringify({
+            scrollY: window.scrollY || window.pageYOffset || 0
+          })
+        );
+      } catch (error) {
+        console.warn("Unable to save gallery position:", error);
+      }
+    }
+
+    function restoreGalleryPosition() {
+      try {
+        const saved = sessionStorage.getItem(GALLERY_STATE_KEY);
+
+        if (!saved) {
+          return;
+        }
+
+        const state = JSON.parse(saved);
+        const scrollY = Number(state?.scrollY);
+
+        if (!Number.isFinite(scrollY) || scrollY < 0) {
+          return;
+        }
+
+        // Wait until the photo grid has been inserted into the page.
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            window.scrollTo({
+              top: scrollY,
+              left: 0,
+              behavior: "auto"
+            });
+          });
+        });
+      } catch (error) {
+        console.warn("Unable to restore gallery position:", error);
+      }
+    }
+
+    window.addEventListener(
+      "beforeunload",
+      saveGalleryPosition
+    );
+
+
+    /* =====================================================
        ELEMENTS
     ===================================================== */
 
@@ -1868,6 +1931,10 @@
         grid
       );
 
+      // If a download caused a page navigation/reload, return
+      // the visitor to the same position in the album.
+      restoreGalleryPosition();
+
 
       /*
        * Google Drive button
@@ -2054,6 +2121,22 @@
     lightboxClose.addEventListener(
       "click",
       closeLightbox
+    );
+
+
+    /* =====================================================
+       DOWNLOAD POSITION MEMORY
+
+       Save the album position immediately before the browser
+       handles the Google Drive download. This is especially
+       useful on mobile browsers that reload the gallery page.
+    ===================================================== */
+
+    lightboxDownload.addEventListener(
+      "click",
+      function() {
+        saveGalleryPosition();
+      }
     );
 
 
