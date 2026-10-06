@@ -972,7 +972,6 @@
         id="lightbox-download"
         class="lightbox-download"
         href=""
-        target="_blank"
         rel="noopener noreferrer"
         download
       >
@@ -1030,6 +1029,16 @@
 
     const DRIVE_FUNCTION =
       "get-gallery-photos";
+
+
+    /*
+     * Supabase Edge Function used for reliable downloads / iPhone sharing.
+     * It fetches the Google Drive image server-side, avoiding browser CORS
+     * limitations when converting the image into a File for the native
+     * Share Sheet.
+     */
+    const PHOTO_PROXY_FUNCTION =
+      "get-gallery-photo";
 
 
     /* =====================================================
@@ -2339,13 +2348,24 @@
 
 
     /* =====================================================
-       SAVE / SHARE PHOTO
+       PHOTO SAVE / DOWNLOAD
+
+       Browser strategy:
+       - iPhone/iPad: use the native Share Sheet with a real File.
+       - Android/Desktop: use a normal download from our Supabase proxy.
+
+       This avoids trying to fetch Google Drive directly from the browser,
+       which can fail because of cross-origin restrictions.
     ===================================================== */
 
     function isIOSDevice() {
 
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      return /iPad|iPhone|iPod/.test(
+        navigator.userAgent
+      ) || (
+        navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1
+      );
 
     }
 
@@ -2354,91 +2374,142 @@
 
       window.clearTimeout(saveStatusTimer);
 
-      lightboxSaveStatus.textContent = text || "";
+      lightboxSaveStatus.textContent =
+        text || "";
 
-      lightboxSaveStatus.classList.toggle("show", !!text);
+      lightboxSaveStatus.classList.toggle(
+        "show",
+        !!text
+      );
 
       if (text) {
 
-        saveStatusTimer = window.setTimeout(function() {
-          lightboxSaveStatus.classList.remove("show");
-        }, 5000);
+        saveStatusTimer =
+          window.setTimeout(
+            function() {
+              lightboxSaveStatus.classList.remove("show");
+            },
+            5000
+          );
 
       }
 
     }
 
 
-    function prepareShareFile(file, imageUrl) {
+    function getPhotoProxyUrl(
+      file,
+      download = false
+    ) {
+
+      if (!file?.id) {
+        return "";
+      }
+
+      return (
+        SUPABASE_URL +
+        "/functions/v1/" +
+        PHOTO_PROXY_FUNCTION +
+        "?fileId=" +
+        encodeURIComponent(file.id) +
+        "&filename=" +
+        encodeURIComponent(getShareFilename(file)) +
+        (download ? "&download=1" : "")
+      );
+
+    }
+
+
+    function getShareFilename(file) {
+
+      let filename =
+        file?.name ||
+        ("lumonere-photo-" + (currentPhotoIndex + 1));
+
+      filename = filename.replace(
+        /[^a-zA-Z0-9._-]+/g,
+        "_"
+      );
+
+      if (!/\.[a-z0-9]{2,5}$/i.test(filename)) {
+        filename += ".jpg";
+      }
+
+      return filename;
+
+    }
+
+
+    function prepareShareFile(file) {
 
       currentShareFilePromise = null;
 
-      if (!imageUrl || !window.fetch || typeof File === "undefined") {
+      const proxyUrl =
+        getPhotoProxyUrl(file, false);
+
+      if (
+        !proxyUrl ||
+        !window.fetch ||
+        typeof File === "undefined"
+      ) {
         return;
       }
 
-      currentShareFilePromise = (async function() {
+      currentShareFilePromise =
+        (async function() {
 
-        try {
+          try {
 
-          const response = await fetch(imageUrl, {
-            mode: "cors",
-            credentials: "omit",
-            cache: "force-cache"
-          });
+            const response =
+              await fetch(proxyUrl, {
+                method: "GET",
+                headers: {
+                  "apikey":
+                    SUPABASE_PUBLISHABLE_KEY
+                },
+                credentials: "omit",
+                cache: "no-store"
+              });
 
-          if (!response.ok) {
-            throw new Error("Image request failed.");
-          }
-
-          const blob = await response.blob();
-
-          if (!blob || !blob.size) {
-            throw new Error("Empty image response.");
-          }
-
-          const mime = blob.type || "image/jpeg";
-          const extension =
-            mime === "image/png"
-              ? "png"
-              : mime === "image/webp"
-                ? "webp"
-                : "jpg";
-
-          let filename =
-            file?.name ||
-            ("lumonere-photo-" + (currentPhotoIndex + 1));
-
-          filename = filename.replace(
-            /[^a-zA-Z0-9._-]+/g,
-            "_"
-          );
-
-          if (!/\.[a-z0-9]{2,5}$/i.test(filename)) {
-            filename += "." + extension;
-          }
-
-          return new File(
-            [blob],
-            filename,
-            {
-              type: mime,
-              lastModified: Date.now()
+            if (!response.ok) {
+              throw new Error(
+                "Photo proxy request failed."
+              );
             }
-          );
 
-        } catch (error) {
+            const blob =
+              await response.blob();
 
-          console.warn(
-            "Unable to prepare photo for Save to Photos:",
-            error
-          );
+            if (!blob || !blob.size) {
+              throw new Error(
+                "Empty image response."
+              );
+            }
 
-          return null;
+            const mime =
+              blob.type || "image/jpeg";
 
-        }
+            return new File(
+              [blob],
+              getShareFilename(file),
+              {
+                type: mime,
+                lastModified: Date.now()
+              }
+            );
 
-      })();
+          } catch (error) {
+
+            console.warn(
+              "Unable to prepare photo for sharing:",
+              error
+            );
+
+            return null;
+
+          }
+
+        })();
 
     }
 
@@ -2446,162 +2517,123 @@
     async function saveCurrentPhotoToPhotos() {
 
       const file =
-        lightboxFiles[currentPhotoIndex];
+        lightboxFiles[
+          currentPhotoIndex
+        ];
 
       if (!file) {
         return;
       }
 
+      if (!isIOSDevice()) {
+        return;
+      }
+
       if (
-        isIOSDevice() &&
-        navigator.share &&
-        navigator.canShare
+        !navigator.share ||
+        !navigator.canShare
       ) {
 
-        lightboxSave.disabled = true;
-        lightboxSave.textContent = "Preparing…";
-        setSaveStatus("Preparing photo…");
+        setSaveStatus(
+          "Press and hold the photo, then choose Save to Photos."
+        );
 
-        try {
+        return;
 
-          const preparedFile =
-            currentShareFilePromise
-              ? await currentShareFilePromise
-              : null;
+      }
 
-          if (!preparedFile) {
-            throw new Error(
-              "This photo could not be prepared for sharing."
-            );
-          }
+      lightboxSave.disabled = true;
+      lightboxSave.textContent = "Preparing…";
+      setSaveStatus("Preparing photo…");
 
-          const shareData = {
-            files: [preparedFile]
-          };
+      try {
 
-          if (!navigator.canShare(shareData)) {
-            throw new Error(
-              "Image sharing is not available on this iPhone."
-            );
-          }
+        const preparedFile =
+          currentShareFilePromise
+            ? await currentShareFilePromise
+            : null;
 
-          setSaveStatus(
-            "Choose Save Image / Save to Photos in the share sheet."
+        if (!preparedFile) {
+          throw new Error(
+            "The photo could not be prepared."
           );
-
-          /*
-           * iOS Safari may leave this Promise pending after the
-           * user chooses Save Image / Save to Photos. Do not await
-           * it, otherwise our UI can remain stuck on "Preparing…".
-           */
-          const sharePromise = navigator.share(shareData);
-
-          sharePromise
-            .then(function() {
-              setSaveStatus("Share completed.");
-            })
-            .catch(function(error) {
-              if (error?.name !== "AbortError") {
-                console.warn("iOS share failed:", error);
-                setSaveStatus(
-                  "Press and hold the photo, then choose Save to Photos."
-                );
-              }
-            });
-
-        } catch (error) {
-
-          /*
-           * Some iOS versions have historically not resolved
-           * navigator.share after a save action. Don't show that
-           * as a gallery failure.
-           */
-
-          if (error?.name === "AbortError") {
-            setSaveStatus("Share cancelled.");
-          } else {
-
-            console.warn(
-              "Save to Photos fallback:",
-              error
-            );
-
-            setSaveStatus(
-              "Press and hold the photo, then choose Save to Photos."
-            );
-
-          }
-
-        } finally {
-
-          lightboxSave.disabled = false;
-          lightboxSave.textContent = "Save to Photos";
-
         }
 
-        return;
-      }
+        const shareData = {
+          files: [preparedFile]
+        };
 
-      /*
-       * Other browsers/devices: use the native share sheet
-       * when it supports the image file.
-       */
-      if (
-        navigator.share &&
-        navigator.canShare
-      ) {
-
-        lightboxSave.disabled = true;
-        lightboxSave.textContent = "Preparing…";
-
-        try {
-
-          const preparedFile =
-            currentShareFilePromise
-              ? await currentShareFilePromise
-              : null;
-
-          if (
-            preparedFile &&
-            navigator.canShare({ files: [preparedFile] })
-          ) {
-            await navigator.share({
-              files: [preparedFile]
-            });
-          } else {
-
-            setSaveStatus(
-              "This browser could not prepare the image for sharing."
-            );
-
-          }
-
-        } catch (error) {
-
-          if (error?.name !== "AbortError") {
-            console.warn("Share failed:", error);
-          }
-
-        } finally {
-
-          lightboxSave.disabled = false;
-          lightboxSave.textContent = "Save / Share";
-
+        if (!navigator.canShare(shareData)) {
+          throw new Error(
+            "Image sharing is not available."
+          );
         }
 
-        return;
-      }
+        setSaveStatus(
+          "Choose Save Image / Save to Photos in the share sheet."
+        );
 
-      /*
-       * Last resort: stay on the gallery and explain the
-       * manual iPhone save gesture instead of opening a new tab.
-       */
-      setSaveStatus(
-        "Press and hold the photo, then choose Save to Photos."
-      );
+        /*
+         * Do not await. Some iOS versions can keep the promise pending
+         * after the user saves the image successfully.
+         */
+        navigator.share(shareData)
+          .then(function() {
+            setSaveStatus("Photo saved/shared.");
+          })
+          .catch(function(error) {
+
+            if (error?.name !== "AbortError") {
+              console.warn(
+                "iOS share failed:",
+                error
+              );
+              setSaveStatus(
+                "Press and hold the photo, then choose Save to Photos."
+              );
+            }
+
+          });
+
+      } catch (error) {
+
+        if (error?.name === "AbortError") {
+          setSaveStatus("Share cancelled.");
+        } else {
+          console.warn(
+            "Save to Photos fallback:",
+            error
+          );
+          setSaveStatus(
+            "Press and hold the photo, then choose Save to Photos."
+          );
+        }
+
+      } finally {
+
+        lightboxSave.disabled = false;
+        lightboxSave.textContent = "Save to Photos";
+
+      }
 
     }
 
+
+    function updateSaveControls() {
+
+      const ios =
+        isIOSDevice();
+
+      lightboxSave.style.display =
+        ios ? "inline-flex" : "none";
+
+      lightboxSave.textContent =
+        "Save to Photos";
+
+      lightboxDownload.textContent =
+        ios ? "Download Photo" : "Download Photo";
+
+    }
 
     /* =====================================================
        OPEN LIGHTBOX
@@ -2722,20 +2754,23 @@
         "Lumonere Studio photo";
 
 
+      const proxyDownloadUrl =
+        getPhotoProxyUrl(
+          file,
+          true
+        );
+
       lightboxDownload.href =
+        proxyDownloadUrl ||
         downloadUrl ||
         fallbackUrl ||
         imageUrl;
 
       prepareShareFile(
-        file,
-        imageUrl
+        file
       );
 
-      lightboxSave.textContent =
-        isIOSDevice()
-          ? "Save to Photos"
-          : "Save / Share";
+      updateSaveControls();
 
 
       lightboxCounter.textContent =
@@ -2850,9 +2885,8 @@
       currentShareFilePromise = null;
       lightboxSave.disabled = false;
       lightboxSave.textContent =
-        isIOSDevice()
-          ? "Save to Photos"
-          : "Save / Share";
+        "Save to Photos";
+      updateSaveControls();
       setSaveStatus("");
 
 
@@ -3027,11 +3061,118 @@
        useful on mobile browsers that reload the gallery page.
     ===================================================== */
 
+    async function downloadCurrentPhoto(event) {
+
+      const file =
+        lightboxFiles[currentPhotoIndex];
+
+      if (!file) {
+        return;
+      }
+
+      const proxyDownloadUrl =
+        getPhotoProxyUrl(file, true);
+
+      if (!proxyDownloadUrl) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      saveGalleryPosition();
+
+      lightboxDownload.setAttribute(
+        "aria-busy",
+        "true"
+      );
+
+      const originalText =
+        lightboxDownload.textContent;
+
+      lightboxDownload.textContent =
+        "Preparing…";
+
+      setSaveStatus("Preparing download…");
+
+      try {
+
+        const response =
+          await fetch(proxyDownloadUrl, {
+            method: "GET",
+            headers: {
+              "Authorization":
+                "Bearer " + SUPABASE_PUBLISHABLE_KEY,
+              "apikey":
+                SUPABASE_PUBLISHABLE_KEY
+            },
+            credentials: "omit",
+            cache: "no-store"
+          });
+
+        if (!response.ok) {
+          throw new Error(
+            "Photo download request failed."
+          );
+        }
+
+        const blob =
+          await response.blob();
+
+        if (!blob || !blob.size) {
+          throw new Error(
+            "The downloaded photo is empty."
+          );
+        }
+
+        const blobUrl =
+          URL.createObjectURL(blob);
+
+        const link =
+          document.createElement("a");
+
+        link.href = blobUrl;
+        link.download = getShareFilename(file);
+        link.style.display = "none";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(function() {
+          URL.revokeObjectURL(blobUrl);
+        }, 60000);
+
+        setSaveStatus("Download started.");
+
+      } catch (error) {
+
+        console.error(
+          "Photo download failed:",
+          error
+        );
+
+        setSaveStatus(
+          "Download failed. Please try again."
+        );
+
+      } finally {
+
+        lightboxDownload.removeAttribute(
+          "aria-busy"
+        );
+
+        lightboxDownload.textContent =
+          originalText;
+
+      }
+
+    }
+
+
     lightboxDownload.addEventListener(
       "click",
-      function() {
-        saveGalleryPosition();
-      }
+      downloadCurrentPhoto
     );
 
 
@@ -3199,6 +3340,7 @@
        START APPLICATION
     ===================================================== */
 
+    updateSaveControls();
     loadGallery();
 
 
