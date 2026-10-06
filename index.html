@@ -35,21 +35,20 @@
 
 
     /* =========================
-       CUSTOMER ALBUMS
+       CUSTOMER GALLERY ACCESS
     ========================= */
 
     .customer-albums {
       margin-top: 30px;
-      padding: 24px 18px;
+      padding: 28px 20px 24px;
       border: 1px solid rgba(255,255,255,.09);
       border-radius: 22px;
       background: rgba(255,255,255,.025);
-      text-align: left;
+      text-align: center;
     }
 
     .albums-heading {
-      text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .albums-heading .eyebrow {
@@ -63,122 +62,92 @@
     }
 
     .albums-subtitle {
-      margin: 7px 0 0;
+      max-width: 330px;
+      margin: 8px auto 0;
       color: rgba(255,255,255,.52);
       font-size: 13px;
+      line-height: 1.5;
     }
 
-    .albums-search {
+    .album-access-form {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .album-code-input {
       width: 100%;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
+      box-sizing: border-box;
+      border: 1px solid rgba(255,255,255,.13);
+      background: rgba(0,0,0,.25);
       color: #fff;
       border-radius: 14px;
-      padding: 13px 15px;
+      padding: 14px 15px;
       outline: none;
       font: inherit;
-      margin-bottom: 14px;
-    }
-
-    .albums-search:focus {
-      border-color: rgba(255,255,255,.28);
-    }
-
-    .albums-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .album-card {
-      display: flex;
-      flex-direction: column;
-      min-height: 155px;
-      padding: 17px;
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 16px;
-      background: rgba(255,255,255,.035);
-      color: #fff;
-      text-decoration: none;
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
-    }
-
-    .album-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255,255,255,.2);
-      background: rgba(255,255,255,.055);
-    }
-
-    .album-icon {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 11px;
-      background: rgba(255,255,255,.08);
-      font-size: 18px;
-      margin-bottom: 13px;
-    }
-
-    .album-client {
       font-size: 15px;
-      font-weight: 650;
-      line-height: 1.25;
+      text-align: center;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      transition: border-color .2s ease, background .2s ease;
     }
 
-    .album-event {
-      margin-top: 5px;
-      color: rgba(255,255,255,.58);
+    .album-code-input::placeholder {
+      color: rgba(255,255,255,.32);
+      letter-spacing: .4px;
+      text-transform: none;
+    }
+
+    .album-code-input:focus {
+      border-color: rgba(255,255,255,.3);
+      background: rgba(0,0,0,.32);
+    }
+
+    .album-code-button {
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      background: #fff;
+      color: #080808;
+      padding: 13px 16px;
+      font: inherit;
       font-size: 12px;
-      line-height: 1.35;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform .2s ease, opacity .2s ease;
     }
 
-    .album-date {
-      margin-top: auto;
-      padding-top: 13px;
-      color: rgba(255,255,255,.38);
+    .album-code-button:hover {
+      transform: translateY(-1px);
+      opacity: .92;
+    }
+
+    .album-code-button:active {
+      transform: translateY(0);
+    }
+
+    .album-access-note {
+      margin: 14px 0 0;
+      color: rgba(255,255,255,.36);
       font-size: 11px;
+      line-height: 1.5;
     }
 
-    .album-empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 24px 12px;
-      color: rgba(255,255,255,.42);
-      font-size: 13px;
-    }
-
-    .albums-status {
-      text-align: center;
-      color: rgba(255,255,255,.38);
+    .album-access-error {
+      min-height: 18px;
+      margin-top: 10px;
+      color: rgba(255,160,160,.85);
       font-size: 12px;
-      margin-top: 13px;
-    }
-
-    .albums-view-all {
-      display: block;
-      width: fit-content;
-      margin: 16px auto 0;
-      color: rgba(255,255,255,.72);
-      text-decoration: none;
-      font-size: 12px;
-      letter-spacing: .6px;
-    }
-
-    .albums-view-all:hover {
-      color: #fff;
     }
 
     @media (max-width: 600px) {
       .customer-albums {
         margin-top: 24px;
-        padding: 20px 12px;
-      }
-
-      .albums-grid {
-        grid-template-columns: 1fr;
+        padding: 22px 14px 20px;
       }
     }
+
 
   </style>
 </head>
@@ -232,38 +201,56 @@
 
 
       <!-- =========================
-           CUSTOMER ALBUMS
+           CUSTOMER GALLERY ACCESS
       ========================= -->
 
       <section class="customer-albums" aria-labelledby="customer-albums-title">
 
         <div class="albums-heading">
           <p class="eyebrow">YOUR MEMORIES</p>
-          <h2 id="customer-albums-title">CUSTOMER ALBUMS</h2>
-          <p class="albums-subtitle">Find your event photos</p>
+          <h2 id="customer-albums-title">CUSTOMER GALLERY</h2>
+          <p class="albums-subtitle">
+            Your event photos are just a code away.
+          </p>
         </div>
 
-        <input
-          id="album-search"
-          class="albums-search"
-          type="search"
-          placeholder="Search by name or event..."
-          aria-label="Search customer albums"
-          autocomplete="off"
-        >
+        <form id="album-access-form" class="album-access-form" novalidate>
 
-        <div id="albums-grid" class="albums-grid">
-          <div class="album-empty">Loading albums...</div>
-        </div>
+          <input
+            id="album-code-input"
+            class="album-code-input"
+            type="text"
+            inputmode="text"
+            maxlength="64"
+            placeholder="Enter your event code"
+            aria-label="Enter your event code"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          >
 
-        <div id="albums-status" class="albums-status"></div>
+          <button
+            id="album-code-button"
+            class="album-code-button"
+            type="submit"
+          >
+            VIEW MY PHOTOS
+          </button>
 
-        <a class="albums-view-all" href="javascript:void(0)" id="albums-clear-search" hidden>
-          CLEAR SEARCH
-        </a>
+          <div
+            id="album-access-error"
+            class="album-access-error"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+        </form>
+
+        <p class="album-access-note">
+          You can also scan the QR code provided by Lumonere Studio.
+        </p>
 
       </section>
-
 
       <!-- =========================
            SOCIAL LINKS
@@ -655,121 +642,39 @@
     );
 
 
-    loadCustomerAlbums();
-
-
     /* =========================
-       CUSTOMER ALBUMS
+       CUSTOMER GALLERY ACCESS
     ========================= */
 
-    const albumsGrid =
-      document.getElementById("albums-grid");
+    const albumAccessForm =
+      document.getElementById("album-access-form");
 
-    const albumSearch =
-      document.getElementById("album-search");
+    const albumCodeInput =
+      document.getElementById("album-code-input");
 
-    const albumsStatus =
-      document.getElementById("albums-status");
+    const albumAccessError =
+      document.getElementById("album-access-error");
 
-    const clearAlbumSearch =
-      document.getElementById("albums-clear-search");
+    albumAccessForm.addEventListener("submit", function(event) {
+      event.preventDefault();
 
-    let customerAlbums = [];
+      const code =
+        albumCodeInput.value.trim().replace(/\s+/g, "");
 
-    function escapeAlbumHtml(value) {
-      if (value === null || value === undefined) return "";
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+      albumAccessError.textContent = "";
 
-    function formatAlbumDate(date) {
-      if (!date) return "";
-      const parsed = new Date(date);
-      if (Number.isNaN(parsed.getTime())) return "";
-      return parsed.toLocaleDateString("en-PH", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-      });
-    }
-
-    function renderCustomerAlbums() {
-      const query =
-        albumSearch.value.trim().toLowerCase();
-
-      const filtered = customerAlbums.filter((album) => {
-        const haystack = [
-          album.client_name,
-          album.event_name
-        ].filter(Boolean).join(" ").toLowerCase();
-        return haystack.includes(query);
-      });
-
-      clearAlbumSearch.hidden = !query;
-
-      if (!filtered.length) {
-        albumsGrid.innerHTML =
-          '<div class="album-empty">No matching album found.</div>';
-        albumsStatus.textContent = "";
+      if (!code) {
+        albumAccessError.textContent =
+          "Please enter your event code.";
+        albumCodeInput.focus();
         return;
       }
 
-      albumsGrid.innerHTML = filtered.map((album) => {
-        const code = encodeURIComponent(album.gallery_code || "");
-        return `
-          <a class="album-card" href="gallery.html?code=${code}">
-            <div class="album-icon" aria-hidden="true">📸</div>
-            <div class="album-client">${escapeAlbumHtml(album.client_name || "Lumonere Studio")}</div>
-            <div class="album-event">${escapeAlbumHtml(album.event_name || "Event Album")}</div>
-            <div class="album-date">${escapeAlbumHtml(formatAlbumDate(album.event_date))}</div>
-          </a>
-        `;
-      }).join("");
-
-      albumsStatus.textContent =
-        `${filtered.length} album${filtered.length === 1 ? "" : "s"}`;
-    }
-
-    async function loadCustomerAlbums() {
-      try {
-        const { data, error } =
-          await supabaseClient
-            .from("galleries")
-            .select("client_name,event_name,gallery_code,event_date,active,expires_at")
-            .eq("active", true)
-            .order("event_date", { ascending: false });
-
-        if (error) throw error;
-
-        const now = Date.now();
-
-        customerAlbums = (data || []).filter((album) => {
-          if (!album.expires_at) return true;
-          const expiration = new Date(album.expires_at).getTime();
-          return Number.isNaN(expiration) || expiration >= now;
-        });
-
-        renderCustomerAlbums();
-      } catch (error) {
-        console.error("Customer albums error:", error);
-        albumsGrid.innerHTML =
-          '<div class="album-empty">Customer albums are temporarily unavailable.</div>';
-        albumsStatus.textContent = "";
-      }
-    }
-
-    albumSearch.addEventListener("input", renderCustomerAlbums);
-
-    clearAlbumSearch.addEventListener("click", function(event) {
-      event.preventDefault();
-      albumSearch.value = "";
-      renderCustomerAlbums();
-      albumSearch.focus();
+      window.location.href =
+        "gallery.html?code=" +
+        encodeURIComponent(code);
     });
+
 
     /* =========================
        GALLERY LOADER
