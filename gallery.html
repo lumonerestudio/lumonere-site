@@ -580,7 +580,7 @@
     }
 
 
-    .lightbox-download {
+    .lightbox-actions {
 
       position: fixed;
 
@@ -588,8 +588,33 @@
 
       left: 50%;
 
-      transform:
-        translateX(-50%);
+      transform: translateX(-50%);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 8px;
+
+      width: min(94vw, 460px);
+
+      z-index: 10000;
+
+    }
+
+
+    .lightbox-download,
+    .lightbox-save {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      border: 0;
 
       background: white;
 
@@ -597,8 +622,7 @@
 
       text-decoration: none;
 
-      padding:
-        12px 22px;
+      padding: 12px 18px;
 
       border-radius: 30px;
 
@@ -606,7 +630,75 @@
 
       font-weight: 600;
 
-      z-index: 10000;
+      cursor: pointer;
+
+      white-space: nowrap;
+
+      min-height: 44px;
+
+    }
+
+
+    .lightbox-save {
+
+      background: rgba(255,255,255,.14);
+
+      color: white;
+
+      border: 1px solid rgba(255,255,255,.18);
+
+    }
+
+
+    .lightbox-save:disabled {
+
+      opacity: .55;
+
+      cursor: wait;
+
+    }
+
+
+    .lightbox-save-status {
+
+      position: fixed;
+
+      left: 50%;
+
+      bottom: 78px;
+
+      transform: translateX(-50%);
+
+      max-width: 90vw;
+
+      padding: 8px 12px;
+
+      border-radius: 10px;
+
+      background: rgba(0,0,0,.72);
+
+      color: rgba(255,255,255,.88);
+
+      font-size: 12px;
+
+      text-align: center;
+
+      line-height: 1.4;
+
+      z-index: 10001;
+
+      pointer-events: none;
+
+      opacity: 0;
+
+      transition: opacity .2s ease;
+
+    }
+
+
+    .lightbox-save-status.show {
+
+      opacity: 1;
 
     }
 
@@ -716,6 +808,36 @@
         top: 12px;
 
         font-size: 11px;
+
+      }
+
+
+      .lightbox-actions {
+
+        bottom: 14px;
+
+        gap: 7px;
+
+        width: calc(100vw - 20px);
+
+      }
+
+
+      .lightbox-download,
+      .lightbox-save {
+
+        flex: 1;
+
+        padding: 11px 12px;
+
+        font-size: 13px;
+
+      }
+
+
+      .lightbox-save-status {
+
+        bottom: 68px;
 
       }
 
@@ -836,16 +958,34 @@
     ></div>
 
 
-    <a
-      id="lightbox-download"
-      class="lightbox-download"
-      href=""
-      target="_blank"
-      rel="noopener noreferrer"
-      download
-    >
-      Download Photo
-    </a>
+    <div class="lightbox-actions">
+
+      <button
+        id="lightbox-save"
+        class="lightbox-save"
+        type="button"
+      >
+        Save to Photos
+      </button>
+
+      <a
+        id="lightbox-download"
+        class="lightbox-download"
+        href=""
+        target="_blank"
+        rel="noopener noreferrer"
+        download
+      >
+        Download Photo
+      </a>
+
+    </div>
+
+    <div
+      id="lightbox-save-status"
+      class="lightbox-save-status"
+      aria-live="polite"
+    ></div>
 
   </div>
 
@@ -1003,6 +1143,18 @@
       );
 
 
+    const lightboxSave =
+      document.getElementById(
+        "lightbox-save"
+      );
+
+
+    const lightboxSaveStatus =
+      document.getElementById(
+        "lightbox-save-status"
+      );
+
+
     const lightboxClose =
       document.getElementById(
         "lightbox-close"
@@ -1036,6 +1188,10 @@
     let touchStartY = 0;
 
     let touchStartTime = 0;
+
+    let currentShareFilePromise = null;
+
+    let saveStatusTimer = null;
 
 
     /* =====================================================
@@ -2183,6 +2339,280 @@
 
 
     /* =====================================================
+       SAVE / SHARE PHOTO
+    ===================================================== */
+
+    function isIOSDevice() {
+
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    }
+
+
+    function setSaveStatus(text) {
+
+      window.clearTimeout(saveStatusTimer);
+
+      lightboxSaveStatus.textContent = text || "";
+
+      lightboxSaveStatus.classList.toggle("show", !!text);
+
+      if (text) {
+
+        saveStatusTimer = window.setTimeout(function() {
+          lightboxSaveStatus.classList.remove("show");
+        }, 5000);
+
+      }
+
+    }
+
+
+    function prepareShareFile(file, imageUrl) {
+
+      currentShareFilePromise = null;
+
+      if (!imageUrl || !window.fetch || typeof File === "undefined") {
+        return;
+      }
+
+      currentShareFilePromise = (async function() {
+
+        try {
+
+          const response = await fetch(imageUrl, {
+            mode: "cors",
+            credentials: "omit",
+            cache: "force-cache"
+          });
+
+          if (!response.ok) {
+            throw new Error("Image request failed.");
+          }
+
+          const blob = await response.blob();
+
+          if (!blob || !blob.size) {
+            throw new Error("Empty image response.");
+          }
+
+          const mime = blob.type || "image/jpeg";
+          const extension =
+            mime === "image/png"
+              ? "png"
+              : mime === "image/webp"
+                ? "webp"
+                : "jpg";
+
+          let filename =
+            file?.name ||
+            ("lumonere-photo-" + (currentPhotoIndex + 1));
+
+          filename = filename.replace(
+            /[^a-zA-Z0-9._-]+/g,
+            "_"
+          );
+
+          if (!/\.[a-z0-9]{2,5}$/i.test(filename)) {
+            filename += "." + extension;
+          }
+
+          return new File(
+            [blob],
+            filename,
+            {
+              type: mime,
+              lastModified: Date.now()
+            }
+          );
+
+        } catch (error) {
+
+          console.warn(
+            "Unable to prepare photo for Save to Photos:",
+            error
+          );
+
+          return null;
+
+        }
+
+      })();
+
+    }
+
+
+    async function saveCurrentPhotoToPhotos() {
+
+      const file =
+        lightboxFiles[currentPhotoIndex];
+
+      if (!file) {
+        return;
+      }
+
+      if (
+        isIOSDevice() &&
+        navigator.share &&
+        navigator.canShare
+      ) {
+
+        lightboxSave.disabled = true;
+        lightboxSave.textContent = "Preparing…";
+        setSaveStatus("Preparing photo…");
+
+        try {
+
+          const preparedFile =
+            currentShareFilePromise
+              ? await currentShareFilePromise
+              : null;
+
+          if (!preparedFile) {
+            throw new Error(
+              "This photo could not be prepared for sharing."
+            );
+          }
+
+          const shareData = {
+            files: [preparedFile]
+          };
+
+          if (!navigator.canShare(shareData)) {
+            throw new Error(
+              "Image sharing is not available on this iPhone."
+            );
+          }
+
+          setSaveStatus(
+            "Choose Save Image / Save to Photos in the share sheet."
+          );
+
+          await navigator.share(shareData);
+
+          setSaveStatus("Photo saved/shared.");
+
+        } catch (error) {
+
+          /*
+           * Some iOS versions have historically not resolved
+           * navigator.share after a save action. Don't show that
+           * as a gallery failure.
+           */
+
+          if (error?.name === "AbortError") {
+            setSaveStatus("Share cancelled.");
+          } else {
+
+            console.warn(
+              "Save to Photos fallback:",
+              error
+            );
+
+            setSaveStatus(
+              "Long-press the photo, then choose Save to Photos."
+            );
+
+            const fallbackUrl =
+              getLargeImageUrl(file) ||
+              getImageUrl(file);
+
+            if (fallbackUrl) {
+              window.open(
+                fallbackUrl,
+                "_blank",
+                "noopener,noreferrer"
+              );
+            }
+
+          }
+
+        } finally {
+
+          lightboxSave.disabled = false;
+          lightboxSave.textContent = "Save to Photos";
+
+        }
+
+        return;
+      }
+
+      /*
+       * Other browsers/devices: use the native share sheet
+       * when it supports the image file.
+       */
+      if (
+        navigator.share &&
+        navigator.canShare
+      ) {
+
+        lightboxSave.disabled = true;
+        lightboxSave.textContent = "Preparing…";
+
+        try {
+
+          const preparedFile =
+            currentShareFilePromise
+              ? await currentShareFilePromise
+              : null;
+
+          if (
+            preparedFile &&
+            navigator.canShare({ files: [preparedFile] })
+          ) {
+            await navigator.share({
+              files: [preparedFile]
+            });
+          } else {
+
+            const fallbackUrl =
+              getLargeImageUrl(file) ||
+              getImageUrl(file);
+
+            if (fallbackUrl) {
+              await navigator.share({
+                url: fallbackUrl
+              });
+            }
+
+          }
+
+        } catch (error) {
+
+          if (error?.name !== "AbortError") {
+            console.warn("Share failed:", error);
+          }
+
+        } finally {
+
+          lightboxSave.disabled = false;
+          lightboxSave.textContent = "Save / Share";
+
+        }
+
+        return;
+      }
+
+      /*
+       * Last resort: open the full-size image.
+       */
+      const fallbackUrl =
+        getLargeImageUrl(file) ||
+        getImageUrl(file);
+
+      if (fallbackUrl) {
+        window.open(
+          fallbackUrl,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      }
+
+    }
+
+
+    /* =====================================================
        OPEN LIGHTBOX
 
        Supports:
@@ -2306,6 +2736,16 @@
         fallbackUrl ||
         imageUrl;
 
+      prepareShareFile(
+        file,
+        imageUrl
+      );
+
+      lightboxSave.textContent =
+        isIOSDevice()
+          ? "Save to Photos"
+          : "Save / Share";
+
 
       lightboxCounter.textContent =
         (currentPhotoIndex + 1) +
@@ -2416,6 +2856,14 @@
       lightboxDownload.href =
         "";
 
+      currentShareFilePromise = null;
+      lightboxSave.disabled = false;
+      lightboxSave.textContent =
+        isIOSDevice()
+          ? "Save to Photos"
+          : "Save / Share";
+      setSaveStatus("");
+
 
       lightboxCounter.textContent =
         "";
@@ -2470,6 +2918,17 @@
     /* =====================================================
        LIGHTBOX EVENTS
     ===================================================== */
+
+    lightboxSave.addEventListener(
+      "click",
+      function(event) {
+
+        event.stopPropagation();
+        saveCurrentPhotoToPhotos();
+
+      }
+    );
+
 
     lightboxClose.addEventListener(
       "click",
