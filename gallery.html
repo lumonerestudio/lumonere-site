@@ -471,6 +471,115 @@
     }
 
 
+    .lightbox-nav {
+
+      position: fixed;
+
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      width: 48px;
+
+      height: 48px;
+
+      border: 0;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.12);
+
+      color: white;
+
+      font-size: 38px;
+
+      line-height: 1;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 0 0 4px;
+
+      cursor: pointer;
+
+      z-index: 10000;
+
+      transition:
+        background .2s ease,
+        opacity .2s ease,
+        transform .2s ease;
+
+      -webkit-tap-highlight-color: transparent;
+
+      touch-action: manipulation;
+
+    }
+
+
+    .lightbox-nav:hover {
+
+      background: rgba(255,255,255,.22);
+
+    }
+
+
+    .lightbox-prev {
+
+      left: 18px;
+
+    }
+
+
+    .lightbox-next {
+
+      right: 18px;
+
+    }
+
+
+    .lightbox-nav.hidden {
+
+      display: none;
+
+    }
+
+
+    .lightbox-counter {
+
+      position: fixed;
+
+      top: 18px;
+
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      min-width: 58px;
+
+      padding: 7px 12px;
+
+      border-radius: 30px;
+
+      background: rgba(255,255,255,.10);
+
+      color: rgba(255,255,255,.82);
+
+      font-size: 12px;
+
+      letter-spacing: .5px;
+
+      text-align: center;
+
+      z-index: 10000;
+
+      pointer-events: none;
+
+    }
+
+
     .lightbox-download {
 
       position: fixed;
@@ -572,6 +681,42 @@
 
         max-height: 82vh;
 
+        touch-action: pan-y pinch-zoom;
+
+      }
+
+
+      .lightbox-nav {
+
+        width: 42px;
+
+        height: 42px;
+
+        font-size: 32px;
+
+      }
+
+
+      .lightbox-prev {
+
+        left: 8px;
+
+      }
+
+
+      .lightbox-next {
+
+        right: 8px;
+
+      }
+
+
+      .lightbox-counter {
+
+        top: 12px;
+
+        font-size: 11px;
+
       }
 
     }
@@ -656,12 +801,39 @@
     </button>
 
 
+    <button
+      id="lightbox-prev"
+      class="lightbox-nav lightbox-prev"
+      aria-label="Previous photo"
+      type="button"
+    >
+      ‹
+    </button>
+
+
     <img
       id="lightbox-image"
       class="lightbox-image"
       src=""
       alt="Gallery photo"
     >
+
+
+    <button
+      id="lightbox-next"
+      class="lightbox-nav lightbox-next"
+      aria-label="Next photo"
+      type="button"
+    >
+      ›
+    </button>
+
+
+    <div
+      id="lightbox-counter"
+      class="lightbox-counter"
+      aria-live="polite"
+    ></div>
 
 
     <a
@@ -835,6 +1007,35 @@
       document.getElementById(
         "lightbox-close"
       );
+
+
+    const lightboxPrev =
+      document.getElementById(
+        "lightbox-prev"
+      );
+
+
+    const lightboxNext =
+      document.getElementById(
+        "lightbox-next"
+      );
+
+
+    const lightboxCounter =
+      document.getElementById(
+        "lightbox-counter"
+      );
+
+
+    let lightboxFiles = [];
+
+    let currentPhotoIndex = -1;
+
+    let touchStartX = 0;
+
+    let touchStartY = 0;
+
+    let touchStartTime = 0;
 
 
     /* =====================================================
@@ -1762,8 +1963,10 @@
         "photo-grid";
 
 
+      lightboxFiles = files.slice();
+
       files.forEach(
-        function(file) {
+        function(file, index) {
 
           const imageUrl =
             getImageUrl(
@@ -1893,7 +2096,7 @@
             function() {
 
               openLightbox(
-                file
+                index
               );
 
             }
@@ -1981,11 +2184,80 @@
 
     /* =====================================================
        OPEN LIGHTBOX
+
+       Supports:
+       - Previous / next buttons
+       - Left / right swipe on mobile
+       - Arrow keys on desktop
+       - Photo counter
     ===================================================== */
 
     function openLightbox(
-      file
+      index
     ) {
+
+      if (
+        !Array.isArray(lightboxFiles) ||
+        lightboxFiles.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      const normalizedIndex =
+        Math.max(
+          0,
+          Math.min(
+            Number(index) || 0,
+            lightboxFiles.length - 1
+          )
+        );
+
+
+      currentPhotoIndex =
+        normalizedIndex;
+
+
+      updateLightboxPhoto();
+
+
+      lightbox.classList.add(
+        "active"
+      );
+
+
+      lightbox.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+
+      document.body.style.overflow =
+        "hidden";
+
+    }
+
+
+    /* =====================================================
+       UPDATE LIGHTBOX PHOTO
+    ===================================================== */
+
+    function updateLightboxPhoto() {
+
+      const file =
+        lightboxFiles[
+          currentPhotoIndex
+        ];
+
+
+      if (!file) {
+
+        return;
+
+      }
+
 
       const imageUrl =
         getLargeImageUrl(
@@ -2024,25 +2296,98 @@
         imageUrl;
 
 
+      lightboxImage.alt =
+        file.name ||
+        "Lumonere Studio photo";
+
+
       lightboxDownload.href =
         downloadUrl ||
         fallbackUrl ||
         imageUrl;
 
 
-      lightbox.classList.add(
-        "active"
+      lightboxCounter.textContent =
+        (currentPhotoIndex + 1) +
+        " / " +
+        lightboxFiles.length;
+
+
+      updateLightboxNavigation();
+
+    }
+
+
+    /* =====================================================
+       LIGHTBOX NAVIGATION
+    ===================================================== */
+
+    function updateLightboxNavigation() {
+
+      const hasMultiplePhotos =
+        lightboxFiles.length > 1;
+
+
+      lightboxPrev.classList.toggle(
+        "hidden",
+        !hasMultiplePhotos
       );
 
 
-      lightbox.setAttribute(
-        "aria-hidden",
-        "false"
+      lightboxNext.classList.toggle(
+        "hidden",
+        !hasMultiplePhotos
       );
 
 
-      document.body.style.overflow =
-        "hidden";
+      if (lightboxFiles.length <= 1) {
+
+        return;
+
+      }
+
+
+      // Wrap around so the user can keep swiping continuously.
+      lightboxPrev.disabled = false;
+      lightboxNext.disabled = false;
+
+    }
+
+
+    function showPreviousPhoto() {
+
+      if (lightboxFiles.length <= 1) {
+
+        return;
+
+      }
+
+
+      currentPhotoIndex =
+        (currentPhotoIndex - 1 + lightboxFiles.length) %
+        lightboxFiles.length;
+
+
+      updateLightboxPhoto();
+
+    }
+
+
+    function showNextPhoto() {
+
+      if (lightboxFiles.length <= 1) {
+
+        return;
+
+      }
+
+
+      currentPhotoIndex =
+        (currentPhotoIndex + 1) %
+        lightboxFiles.length;
+
+
+      updateLightboxPhoto();
 
     }
 
@@ -2070,6 +2415,14 @@
 
       lightboxDownload.href =
         "";
+
+
+      lightboxCounter.textContent =
+        "";
+
+
+      currentPhotoIndex =
+        -1;
 
 
       document.body.style.overflow =
@@ -2124,6 +2477,98 @@
     );
 
 
+    lightboxPrev.addEventListener(
+      "click",
+      function(event) {
+        event.stopPropagation();
+        showPreviousPhoto();
+      }
+    );
+
+
+    lightboxNext.addEventListener(
+      "click",
+      function(event) {
+        event.stopPropagation();
+        showNextPhoto();
+      }
+    );
+
+
+    /* =====================================================
+       TOUCH SWIPE
+
+       Swipe left  -> next photo
+       Swipe right -> previous photo
+    ===================================================== */
+
+    lightbox.addEventListener(
+      "touchstart",
+      function(event) {
+
+        if (!lightbox.classList.contains("active")) {
+          return;
+        }
+
+        const touch = event.changedTouches && event.changedTouches[0];
+
+        if (!touch) {
+          return;
+        }
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchStartTime = Date.now();
+
+      },
+      { passive: true }
+    );
+
+
+    lightbox.addEventListener(
+      "touchend",
+      function(event) {
+
+        if (!lightbox.classList.contains("active")) {
+          return;
+        }
+
+        const touch = event.changedTouches && event.changedTouches[0];
+
+        if (!touch) {
+          return;
+        }
+
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        const elapsed = Date.now() - touchStartTime;
+
+        const minimumSwipeDistance = 55;
+        const maxVerticalDrift = 90;
+        const maximumSwipeTime = 700;
+
+        if (
+          elapsed <= maximumSwipeTime &&
+          Math.abs(deltaX) >= minimumSwipeDistance &&
+          Math.abs(deltaX) > Math.abs(deltaY) &&
+          Math.abs(deltaY) <= maxVerticalDrift
+        ) {
+
+          if (deltaX < 0) {
+            showNextPhoto();
+          } else {
+            showPreviousPhoto();
+          }
+
+          event.preventDefault();
+
+        }
+
+      },
+      { passive: false }
+    );
+
+
     /* =====================================================
        DOWNLOAD POSITION MEMORY
 
@@ -2167,6 +2612,32 @@
         ) {
 
           closeLightbox();
+          return;
+
+        }
+
+
+        if (
+          !lightbox.classList.contains("active")
+        ) {
+
+          return;
+
+        }
+
+
+        if (event.key === "ArrowLeft") {
+
+          event.preventDefault();
+          showPreviousPhoto();
+
+        }
+
+
+        if (event.key === "ArrowRight") {
+
+          event.preventDefault();
+          showNextPhoto();
 
         }
 
