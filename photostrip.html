@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Find and save your Lumonere Studio photostrip using its six-character code.">
+  <title>Lumonere Studio — Photostrip</title>
+  <style>
+    :root { color-scheme: dark; --bg:#080808; --panel:#191919; --line:rgba(255,255,255,.10); --muted:rgba(255,255,255,.62); }
+    * { box-sizing:border-box; }
+    html { min-height:100%; background:var(--bg); }
+    body {
+      margin:0; min-height:100vh; color:#fff;
+      background:radial-gradient(circle at top,#202020 0%,#0d0d0d 48%,#080808 100%);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    button,input { font:inherit; }
+    button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .page { width:min(100%,720px); margin:0 auto; padding:clamp(22px,5vw,42px) 16px calc(36px + env(safe-area-inset-bottom)); }
+    header { text-align:center; margin:0 0 26px; }
+    .brand { font-size:11px; letter-spacing:4px; font-weight:700; opacity:.62; text-transform:uppercase; margin-bottom:9px; }
+    h1 { margin:0; font-size:clamp(29px,7vw,42px); letter-spacing:-1px; }
+    .subtitle { color:var(--muted); font-size:14px; line-height:1.55; max-width:460px; margin:10px auto 0; }
+    .panel { background:rgba(25,25,25,.86); border:1px solid var(--line); border-radius:18px; padding:clamp(17px,4vw,26px); margin-bottom:16px; }
+    .field-label { display:block; font-size:13px; font-weight:650; margin-bottom:9px; }
+    .search-row { display:flex; gap:9px; }
+    #code-input { min-width:0; flex:1; background:#242424; color:#fff; border:1px solid rgba(255,255,255,.16); border-radius:11px; padding:13px 14px; letter-spacing:3px; text-transform:uppercase; outline:none; }
+    #code-input:focus { border-color:rgba(255,255,255,.55); box-shadow:0 0 0 3px rgba(255,255,255,.06); }
+    #code-input::placeholder { letter-spacing:1px; text-transform:none; color:rgba(255,255,255,.34); }
+    .btn { border:0; border-radius:11px; min-height:46px; padding:12px 16px; font-weight:700; transition:opacity .15s ease,transform .15s ease; }
+    .btn:active:not(:disabled) { transform:scale(.99); }
+    .btn-primary { background:#fff; color:#080808; }
+    .btn-secondary { background:#303030; color:#fff; border:1px solid rgba(255,255,255,.09); }
+    .status { display:none; margin-top:14px; border-radius:10px; padding:12px 13px; font-size:13px; line-height:1.5; }
+    .status.show { display:block; }
+    .status.error { color:#ffb0b0; background:rgba(255,75,75,.10); border:1px solid rgba(255,100,100,.16); }
+    .status.info { color:rgba(255,255,255,.78); background:rgba(255,255,255,.055); }
+    .result { display:none; }
+    .result.show { display:block; }
+    .result-heading { text-align:center; margin:1px 0 16px; }
+    .result-heading h2 { margin:0 0 6px; font-size:19px; }
+    .result-heading p { color:var(--muted); font-size:13px; line-height:1.5; margin:0; }
+    .image-stage { display:flex; align-items:center; justify-content:center; padding:clamp(12px,4vw,20px); min-height:220px; border-radius:13px; background:#101010; border:1px solid rgba(255,255,255,.07); }
+    #strip-image { display:block; width:auto; height:auto; max-width:min(100%,360px); max-height:60vh; object-fit:contain; border-radius:3px; box-shadow:0 12px 36px rgba(0,0,0,.38); }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .hint { color:rgba(255,255,255,.54); font-size:12px; line-height:1.55; margin:13px 2px 0; text-align:center; }
+    footer { text-align:center; padding-top:18px; color:rgba(255,255,255,.36); font-size:11px; letter-spacing:.35px; }
+    .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; display:inline-block; vertical-align:middle; animation:spin .7s linear infinite; margin-right:8px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @media (max-width:480px) {
+      .search-row { flex-direction:column; }
+      .search-row .btn { width:100%; }
+      .actions { grid-template-columns:1fr; }
+      #strip-image { max-width:100%; max-height:58vh; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand">Lumonere Studio</div>
+      <h1>Your Photostrip</h1>
+      <p class="subtitle">Enter the six-character code printed on your photostrip to retrieve your image.</p>
+    </header>
+
+    <section class="panel" aria-labelledby="lookup-title">
+      <form id="lookup-form">
+        <label id="lookup-title" class="field-label" for="code-input">Photostrip code</label>
+        <div class="search-row">
+          <input id="code-input" name="code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="6" minlength="6" pattern="[A-Za-z0-9]{6}" placeholder="e.g. TS7KQ9" aria-describedby="code-help" required>
+          <button id="lookup-button" class="btn btn-primary" type="submit">Find My Photo</button>
+        </div>
+        <div id="code-help" class="hint">Your code is six letters and/or numbers. The code is not case-sensitive.</div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section id="result" class="panel result" aria-labelledby="result-title">
+      <div class="result-heading">
+        <h2 id="result-title">Your photostrip is ready</h2>
+        <p>Use Save to Photos to open your device’s share menu, or download the image directly.</p>
+      </div>
+      <div class="image-stage">
+        <img id="strip-image" alt="Your Lumonere Studio photostrip" hidden>
+      </div>
+      <div class="actions">
+        <button id="save-button" class="btn btn-primary" type="button" disabled>Save to Photos</button>
+        <button id="download-button" class="btn btn-secondary" type="button" disabled>Download Image</button>
+      </div>
+      <p class="hint" id="save-hint">iPhone/iPad: tap Save to Photos, then choose Save Image in the share sheet. Android: use the share menu if available, or Download Image and open it from Downloads.</p>
+    </section>
+
+    <footer>Making Your Moments Photo Worthy.</footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const SUPABASE_URL = "https://xlwcxuicdveqaxeeqawv.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BrEK961qCBTmXCuMeKcK7w_lXQTTFCL";
+    const LOOKUP_ENDPOINT = SUPABASE_URL + "/functions/v1/get-photostrip";
+
+    const form = document.getElementById("lookup-form");
+    const codeInput = document.getElementById("code-input");
+    const lookupButton = document.getElementById("lookup-button");
+    const statusBox = document.getElementById("status");
+    const resultPanel = document.getElementById("result");
+    const stripImage = document.getElementById("strip-image");
+    const saveButton = document.getElementById("save-button");
+    const downloadButton = document.getElementById("download-button");
+
+    let currentBlob = null;
+    let currentObjectUrl = null;
+    let currentFilename = "Lumonere-Photostrip.jpg";
+
+    function setStatus(message, type = "info") {
+      statusBox.textContent = message || "";
+      statusBox.className = message ? "status show " + type : "status";
+    }
+
+    function setBusy(busy) {
+      lookupButton.disabled = busy;
+      codeInput.disabled = busy;
+      lookupButton.innerHTML = busy ? '<span class="spinner" aria-hidden="true"></span>Finding…' : "Find My Photo";
+    }
+
+    function cleanFilename(value) {
+      const cleaned = String(value || "Lumonere-Photostrip.jpg")
+        .replace(/[\\/\r\n\0]/g, "_")
+        .replace(/[^a-zA-Z0-9._ -]/g, "_")
+        .trim()
+        .slice(0, 120);
+      return cleaned || "Lumonere-Photostrip.jpg";
+    }
+
+    function filenameFromDisposition(header) {
+      if (!header) return "Lumonere-Photostrip.jpg";
+      const match = header.match(/filename\s*=\s*"?([^";]+)"?/i);
+      return match ? cleanFilename(match[1]) : "Lumonere-Photostrip.jpg";
+    }
+
+    function clearCurrentImage() {
+      currentBlob = null;
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+      stripImage.removeAttribute("src");
+      stripImage.hidden = true;
+      saveButton.disabled = true;
+      downloadButton.disabled = true;
+      resultPanel.classList.remove("show");
+    }
+
+    async function readError(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        try {
+          const body = await response.json();
+          if (body && typeof body.error === "string") return body.error;
+        } catch (_) {}
+      }
+      if (response.status === 404) return "Photostrip not found or unavailable. Check the code and try again.";
+      if (response.status === 429) return "Too many attempts. Please wait a little before trying again.";
+      return "We couldn't retrieve this photostrip right now. Please try again later.";
+    }
+
+    async function lookupCode(code) {
+      clearCurrentImage();
+      setStatus("Looking up your photostrip…", "info");
+      setBusy(true);
+
+      try {
+        const response = await fetch(LOOKUP_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY
+          },
+          body: JSON.stringify({ code }),
+          cache: "no-store",
+          credentials: "omit",
+          referrerPolicy: "no-referrer"
+        });
+
+        if (!response.ok) {
+          throw new Error(await readError(response));
+        }
+
+        const contentType = (response.headers.get("content-type") || "").toLowerCase();
+        if (!contentType.startsWith("image/")) {
+          throw new Error("The service returned an unexpected response. Please try again later.");
+        }
+
+        const blob = await response.blob();
+        if (!blob.size) throw new Error("The photostrip image was empty. Please try again.");
+
+        currentBlob = new Blob([blob], { type: contentType.split(";")[0] || blob.type || "image/jpeg" });
+        currentFilename = filenameFromDisposition(response.headers.get("content-disposition"));
+        if (!/\.(jpe?g|png|webp|gif|heic)$/i.test(currentFilename)) {
+          const ext = (currentBlob.type.split("/")[1] || "jpg").replace("jpeg", "jpg").replace(/[^a-z0-9]/gi, "");
+          currentFilename += "." + (ext || "jpg");
+        }
+
+        currentObjectUrl = URL.createObjectURL(currentBlob);
+        stripImage.src = currentObjectUrl;
+        stripImage.hidden = false;
+        resultPanel.classList.add("show");
+        saveButton.disabled = false;
+        downloadButton.disabled = false;
+        setStatus("Photostrip found. You can now save or download your image.", "info");
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        console.error("Photostrip lookup failed:", error);
+        const message = error instanceof TypeError
+          ? "Unable to connect to the photostrip service. Check your internet connection and try again."
+          : (error?.message || "Unable to retrieve this photostrip. Please try again later.");
+        setStatus(message, "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function makeShareFile() {
+      const FileConstructor = window.File;
+      if (!currentBlob || typeof FileConstructor !== "function") return null;
+      return new FileConstructor([currentBlob], currentFilename, {
+        type: currentBlob.type || "image/jpeg",
+        lastModified: Date.now()
+      });
+    }
+
+    function downloadCurrentImage() {
+      if (!currentBlob) return;
+      const url = URL.createObjectURL(currentBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = currentFilename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    saveButton.addEventListener("click", async function () {
+      if (!currentBlob) return;
+
+      const file = makeShareFile();
+      const shareData = file ? {
+        files: [file],
+        title: "Lumonere Studio Photostrip",
+        text: "Save my photostrip image."
+      } : null;
+
+      // On Safari/iOS and supported Android browsers, share the actual image file.
+      // The user must choose Save Image/Photos or a suitable app in the system share sheet.
+      try {
+        if (shareData && typeof navigator.share === "function" &&
+            typeof navigator.canShare === "function" && navigator.canShare({ files: shareData.files })) {
+          await navigator.share(shareData);
+          setStatus("Share menu opened. Choose Save Image/Save to Photos or your preferred app.", "info");
+          return;
+        }
+
+        downloadCurrentImage();
+        setStatus("Image download started. On iPhone/iPad, use the share/save option if available; otherwise check Files or Downloads.", "info");
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          setStatus("Sharing cancelled. Your photostrip is still available above.", "info");
+          return;
+        }
+        console.warn("Native image sharing unavailable:", error);
+        downloadCurrentImage();
+        setStatus("Opened a download instead. Check your device's Downloads or Files app.", "info");
+      }
+    });
+
+    downloadButton.addEventListener("click", function () {
+      downloadCurrentImage();
+      setStatus("Image download started. Check your browser's Downloads or Files app.", "info");
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      codeInput.value = code;
+      if (!/^[A-Z0-9]{6}$/.test(code)) {
+        clearCurrentImage();
+        setStatus("Enter exactly six letters and/or numbers from your photostrip.", "error");
+        return;
+      }
+      lookupCode(code);
+    });
+
+    codeInput.addEventListener("input", function () {
+      const position = this.selectionStart;
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+      try { this.setSelectionRange(position, position); } catch (_) {}
+    });
+
+    window.addEventListener("pagehide", function () {
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+    });
+
+    // Allow a QR code or link to prefill the code, e.g. photostrip.html?code=TS7KQ9.
+    const params = new URLSearchParams(window.location.search);
+    const initialCode = (params.get("code") || "").trim().toUpperCase();
+    if (/^[A-Z0-9]{6}$/.test(initialCode)) {
+      codeInput.value = initialCode;
+      lookupCode(initialCode);
+    } else {
+      codeInput.focus({ preventScroll: true });
+    }
+  </script>
+</body>
+</html>
