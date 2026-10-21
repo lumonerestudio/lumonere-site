@@ -873,6 +873,35 @@
 
     }
 
+
+    /* PAST EVENTS MANAGEMENT */
+    .past-event-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; }
+    .past-event-form-grid .field.full { grid-column:1 / -1; }
+    .past-event-form-grid textarea { width:100%; min-height:90px; padding:13px 14px; border:1px solid rgba(255,255,255,.12); border-radius:10px; background:rgba(255,255,255,.05); color:#fff; font:inherit; resize:vertical; }
+    .past-event-form-grid textarea:focus { outline:none; border-color:rgba(215,183,123,.6); }
+    .past-event-form-grid input[type="file"] { padding:10px; }
+    .past-event-inline { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0 16px; color:rgba(255,255,255,.67); font-size:12px; }
+    .past-event-inline input[type="checkbox"] { width:17px; height:17px; accent-color:#d7b77b; }
+    .past-event-hint { margin:-5px 0 18px; color:rgba(255,255,255,.42); font-size:11px; line-height:1.6; }
+    .past-event-list { display:grid; gap:14px; }
+    .past-event-item { padding:16px; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:rgba(255,255,255,.018); }
+    .past-event-item-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .past-event-item h3 { margin:0 0 5px; font-size:16px; }
+    .past-event-item-meta { color:rgba(255,255,255,.48); font-size:11px; line-height:1.6; }
+    .past-event-item-desc { color:rgba(255,255,255,.68); font-size:12px; line-height:1.6; margin:10px 0; white-space:pre-wrap; }
+    .past-event-badge { display:inline-flex; align-items:center; border-radius:20px; padding:5px 8px; background:rgba(215,183,123,.12); color:#e6c98e; font-size:10px; letter-spacing:.05em; font-weight:700; }
+    .past-event-badge.unpublished { background:rgba(255,255,255,.07); color:rgba(255,255,255,.55); }
+    .past-event-actions { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:12px; }
+    .past-event-actions .button { padding:9px 12px; font-size:11px; }
+    .past-event-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:9px; margin-top:14px; }
+    .past-event-photo { position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.1); border-radius:9px; aspect-ratio:1; background:#111; }
+    .past-event-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+    .past-event-photo button { position:absolute; top:5px; right:5px; border:1px solid rgba(255,255,255,.3); border-radius:7px; background:rgba(0,0,0,.8); color:#fff; width:27px; height:27px; font-size:16px; line-height:1; }
+    .past-event-empty { padding:18px; border:1px dashed rgba(255,255,255,.15); border-radius:12px; color:rgba(255,255,255,.45); font-size:12px; text-align:center; }
+    .past-event-upload-input { display:none; }
+    .past-event-save-note { margin-top:12px; color:rgba(255,255,255,.4); font-size:11px; line-height:1.5; }
+    @media (max-width:650px) { .past-event-form-grid { grid-template-columns:1fr; } .past-event-form-grid .field.full { grid-column:auto; } .past-event-actions .button { flex:1; } }
+
   </style>
 
 </head>
@@ -1191,6 +1220,48 @@
       <div style="height:1px;background:rgba(255,255,255,.08);margin:24px 0;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;"><h3 style="margin:0;font-size:16px;">Registered Photostrips</h3><button id="strip-refresh-button" class="button button-secondary" type="button">Refresh List</button></div>
       <div id="strip-list" class="strip-list"><div class="loading">Sign in to load photostrips.</div></div>
+    </section>
+
+
+    <!-- PAST EVENTS PORTFOLIO MANAGEMENT -->
+    <section class="panel" id="past-events-admin-panel">
+      <h2 id="past-event-form-title" class="panel-title">Past Events Portfolio</h2>
+      <p class="strip-help">Create an event entry, upload approved photobooth photos and behind-the-scenes images, then publish it to the public Past Events page. Unpublished entries stay hidden from the portfolio.</p>
+      <div id="past-event-message" class="message" role="status" aria-live="polite"></div>
+      <form id="past-event-form">
+        <div class="past-event-form-grid">
+          <div class="field">
+            <label for="past-event-title">Event Name</label>
+            <input id="past-event-title" type="text" maxlength="120" placeholder="e.g. Yannah's 18th Birthday" required>
+          </div>
+          <div class="field">
+            <label for="past-event-date">Event Date</label>
+            <input id="past-event-date" type="date">
+          </div>
+          <div class="field full">
+            <label for="past-event-location">Venue / Location (optional)</label>
+            <input id="past-event-location" type="text" maxlength="180" placeholder="e.g. Taguig City">
+          </div>
+          <div class="field full">
+            <label for="past-event-description">Event Highlights / Description</label>
+            <textarea id="past-event-description" maxlength="1600" placeholder="A short caption about the event, photobooth setup, or behind-the-scenes moments."></textarea>
+          </div>
+          <div class="field full">
+            <label for="past-event-images">Upload Photos</label>
+            <input id="past-event-images" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          </div>
+        </div>
+        <p class="past-event-hint">Accepted formats: JPG, PNG, WebP. Limit: 10 MB per image. Upload only photos you have permission to share publicly. You can also add more photos after creating an event.</p>
+        <label class="past-event-inline"><input id="past-event-published" type="checkbox"> Publish this event on the public website (only if photos are approved for public sharing)</label>
+        <div class="form-actions">
+          <button id="past-event-save-button" type="submit" class="button button-primary">Create Event</button>
+          <button id="past-event-cancel-button" type="button" class="button button-secondary" style="display:none;">Cancel Edit</button>
+          <button id="past-event-refresh-button" type="button" class="button button-secondary">Refresh Events</button>
+        </div>
+      </form>
+      <div style="height:1px;background:rgba(255,255,255,.08);margin:24px 0;"></div>
+      <h3 style="margin:0 0 14px;font-size:16px;">Managed Past Events</h3>
+      <div id="past-event-list" class="past-event-list"><div class="loading">Sign in to load past events.</div></div>
     </section>
 
     <!-- GALLERIES -->
@@ -1573,6 +1644,7 @@
 
       loadGalleries();
       loadPhotostrips();
+      loadPastEventsAdmin();
 
     }
 
@@ -3424,6 +3496,287 @@
 
     }
 
+
+
+    /* =====================================================
+       PAST EVENTS PORTFOLIO
+    ===================================================== */
+    const EVENT_PHOTO_BUCKET = "lumonere-event-photos";
+    let editingPastEventId = null;
+    let cachedPastEvents = [];
+    let pastEventSignedUrls = {};
+
+    const pastEventForm = document.getElementById("past-event-form");
+    const pastEventMessage = document.getElementById("past-event-message");
+    const pastEventList = document.getElementById("past-event-list");
+    const pastEventSaveButton = document.getElementById("past-event-save-button");
+    const pastEventCancelButton = document.getElementById("past-event-cancel-button");
+    const pastEventRefreshButton = document.getElementById("past-event-refresh-button");
+
+    function escapePastEventHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function safePastEventFilename(name) {
+      const base = String(name || "photo").split(/[\\/]/).pop();
+      return base.normalize("NFKD").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").slice(-100) || "photo.jpg";
+    }
+
+    async function createPastEventSignedUrl(path) {
+      if (pastEventSignedUrls[path] && pastEventSignedUrls[path].expires > Date.now()) {
+        return pastEventSignedUrls[path].url;
+      }
+      const { data, error } = await supabaseClient.storage.from(EVENT_PHOTO_BUCKET).createSignedUrl(path, 86400);
+      if (error) throw error;
+      pastEventSignedUrls[path] = { url: data.signedUrl, expires: Date.now() + 23 * 60 * 60 * 1000 };
+      return data.signedUrl;
+    }
+
+    async function uploadPastEventPhotos(eventId, fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return { uploaded: 0, errors: [] };
+      const errors = [];
+      let uploaded = 0;
+
+      for (const file of files) {
+        if (!/^image\/(jpeg|png|webp)$/i.test(file.type)) {
+          errors.push(`${file.name}: unsupported file type`);
+          continue;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          errors.push(`${file.name}: larger than 10 MB`);
+          continue;
+        }
+        const objectPath = `${eventId}/${Date.now()}-${Math.random().toString(36).slice(2, 9)}-${safePastEventFilename(file.name)}`;
+        const { error: uploadError } = await supabaseClient.storage.from(EVENT_PHOTO_BUCKET).upload(objectPath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+        if (uploadError) {
+          errors.push(`${file.name}: ${uploadError.message}`);
+          continue;
+        }
+        const caption = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").slice(0, 180);
+        const { error: rowError } = await supabaseClient.from("past_event_photos").insert({
+          event_id: eventId,
+          storage_path: objectPath,
+          caption,
+          sort_order: uploaded
+        });
+        if (rowError) {
+          await supabaseClient.storage.from(EVENT_PHOTO_BUCKET).remove([objectPath]);
+          errors.push(`${file.name}: uploaded but photo record failed — ${rowError.message}`);
+          continue;
+        }
+        uploaded++;
+      }
+      return { uploaded, errors };
+    }
+
+    async function loadPastEventsAdmin() {
+      if (!currentUser || currentUser.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
+      pastEventList.innerHTML = '<div class="loading">Loading past events...</div>';
+      const { data: events, error } = await supabaseClient
+        .from("past_events")
+        .select("id,title,event_date,location,description,published,created_at,updated_at")
+        .order("event_date", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      if (error) {
+        pastEventList.innerHTML = `<div class="past-event-empty">Could not load portfolio entries. Run the Past Events SQL setup first. ${escapePastEventHtml(error.message)}</div>`;
+        return;
+      }
+      cachedPastEvents = events || [];
+      if (!cachedPastEvents.length) {
+        pastEventList.innerHTML = '<div class="past-event-empty">No past events yet. Create your first event above.</div>';
+        return;
+      }
+      const ids = cachedPastEvents.map(e => e.id);
+      const { data: photos, error: photoError } = await supabaseClient
+        .from("past_event_photos")
+        .select("id,event_id,storage_path,caption,sort_order,created_at")
+        .in("event_id", ids)
+        .order("sort_order", { ascending: true });
+      if (photoError) {
+        pastEventList.innerHTML = `<div class="past-event-empty">Events loaded, but photo records could not be loaded: ${escapePastEventHtml(photoError.message)}</div>`;
+        return;
+      }
+      const grouped = {};
+      (photos || []).forEach(p => { (grouped[p.event_id] ||= []).push(p); });
+      pastEventList.innerHTML = "";
+      for (const ev of cachedPastEvents) {
+        const photoRows = grouped[ev.id] || [];
+        const photoCards = [];
+        for (const p of photoRows) {
+          let url = "";
+          try { url = await createPastEventSignedUrl(p.storage_path); } catch (e) { console.warn("Could not create event photo URL", e); }
+          photoCards.push(`<div class="past-event-photo" title="${escapePastEventHtml(p.caption || "Event photo")}">${url ? `<img src="${escapePastEventHtml(url)}" alt="${escapePastEventHtml(p.caption || ev.title)}" loading="lazy">` : '<div style="padding:12px;font-size:10px;color:#888;">Preview unavailable</div>'}<button type="button" data-event-action="remove-photo" data-event-id="${ev.id}" data-photo-id="${p.id}" aria-label="Remove photo">×</button></div>`);
+        }
+        const item = document.createElement("article");
+        item.className = "past-event-item";
+        item.innerHTML = `
+          <div class="past-event-item-header">
+            <div><h3>${escapePastEventHtml(ev.title)}</h3><div class="past-event-item-meta">${ev.event_date ? escapePastEventHtml(new Date(`${ev.event_date}T00:00:00`).toLocaleDateString("en-PH", { year:"numeric", month:"short", day:"numeric" })) : "Date not set"}${ev.location ? ` · ${escapePastEventHtml(ev.location)}` : ""} · ${photoRows.length} photo(s)</div></div>
+            <span class="past-event-badge ${ev.published ? "" : "unpublished"}">${ev.published ? "PUBLISHED" : "UNPUBLISHED"}</span>
+          </div>
+          ${ev.description ? `<p class="past-event-item-desc">${escapePastEventHtml(ev.description)}</p>` : ""}
+          ${photoCards.length ? `<div class="past-event-photo-grid">${photoCards.join("")}</div>` : '<div class="past-event-empty" style="margin-top:12px;">No photos uploaded yet.</div>'}
+          <div class="past-event-actions">
+            <button type="button" class="button button-secondary" data-event-action="edit" data-event-id="${ev.id}">Edit details</button>
+            <button type="button" class="button button-secondary" data-event-action="add-photos" data-event-id="${ev.id}">Add photos</button>
+            <input class="past-event-upload-input" type="file" accept="image/jpeg,image/png,image/webp" multiple data-event-upload="${ev.id}">
+            <button type="button" class="button button-secondary" data-event-action="toggle" data-event-id="${ev.id}">${ev.published ? "Unpublish" : "Publish"}</button>
+            <button type="button" class="button button-danger" data-event-action="delete" data-event-id="${ev.id}">Delete event</button>
+          </div>`;
+        pastEventList.appendChild(item);
+      }
+    }
+
+    function resetPastEventForm() {
+      editingPastEventId = null;
+      pastEventForm.reset();
+      document.getElementById("past-event-form-title").textContent = "Past Events Portfolio";
+      pastEventSaveButton.textContent = "Create Event";
+      pastEventCancelButton.style.display = "none";
+      hideMessage(pastEventMessage);
+    }
+
+    pastEventForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      hideMessage(pastEventMessage);
+      if (!currentUser || currentUser.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        showMessage(pastEventMessage, "Please sign in with the authorized admin account.", "error");
+        return;
+      }
+      const wasEditing = !!editingPastEventId;
+      const title = document.getElementById("past-event-title").value.trim();
+      const eventDate = document.getElementById("past-event-date").value || null;
+      const location = document.getElementById("past-event-location").value.trim() || null;
+      const description = document.getElementById("past-event-description").value.trim() || null;
+      const published = document.getElementById("past-event-published").checked;
+      const files = document.getElementById("past-event-images").files;
+      if (!title) return;
+      pastEventSaveButton.disabled = true;
+      pastEventSaveButton.textContent = editingPastEventId ? "Saving..." : "Creating...";
+      try {
+        let eventId = editingPastEventId;
+        const payload = { title, event_date: eventDate, location, description, published };
+        if (editingPastEventId) {
+          const { error } = await supabaseClient.from("past_events").update(payload).eq("id", editingPastEventId);
+          if (error) throw error;
+        } else {
+          const { data, error } = await supabaseClient.from("past_events").insert(payload).select("id").single();
+          if (error) throw error;
+          eventId = data.id;
+        }
+        const result = await uploadPastEventPhotos(eventId, files);
+        resetPastEventForm();
+        if (result.errors.length) {
+          showMessage(pastEventMessage, `Event details saved. Uploaded ${result.uploaded} photo(s); ${result.errors.length} file(s) had issues: ${result.errors.join("; ")}`, "error");
+        } else {
+          showMessage(pastEventMessage, `Event ${wasEditing ? "updated" : "created"} successfully. Uploaded ${result.uploaded} photo(s).`, "success");
+        }
+        await loadPastEventsAdmin();
+      } catch (error) {
+        console.error("Past event save error:", error);
+        showMessage(pastEventMessage, error?.message || "Unable to save this event. Ensure the SQL setup has been run.", "error");
+      } finally {
+        pastEventSaveButton.disabled = false;
+        pastEventSaveButton.textContent = editingPastEventId ? "Save Changes" : "Create Event";
+      }
+    });
+
+    pastEventCancelButton.addEventListener("click", resetPastEventForm);
+    pastEventRefreshButton.addEventListener("click", loadPastEventsAdmin);
+
+    pastEventList.addEventListener("click", async function(event) {
+      const button = event.target.closest("button[data-event-action]");
+      if (!button) return;
+      const action = button.dataset.eventAction;
+      const eventId = button.dataset.eventId;
+      const ev = cachedPastEvents.find(item => item.id === eventId);
+      if (!ev) return;
+
+      if (action === "edit") {
+        editingPastEventId = ev.id;
+        document.getElementById("past-event-title").value = ev.title || "";
+        document.getElementById("past-event-date").value = ev.event_date || "";
+        document.getElementById("past-event-location").value = ev.location || "";
+        document.getElementById("past-event-description").value = ev.description || "";
+        document.getElementById("past-event-published").checked = !!ev.published;
+        document.getElementById("past-event-images").value = "";
+        document.getElementById("past-event-form-title").textContent = "Edit Past Event";
+        pastEventSaveButton.textContent = "Save Changes";
+        pastEventCancelButton.style.display = "inline-flex";
+        hideMessage(pastEventMessage);
+        document.getElementById("past-events-admin-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (action === "add-photos") {
+        const input = pastEventList.querySelector(`input[data-event-upload="${CSS.escape(eventId)}"]`);
+        if (input) { input.value = ""; input.click(); }
+      } else if (action === "toggle") {
+        button.disabled = true;
+        const { error } = await supabaseClient.from("past_events").update({ published: !ev.published }).eq("id", eventId);
+        if (error) showMessage(pastEventMessage, error.message, "error");
+        else showMessage(pastEventMessage, `Event ${!ev.published ? "published" : "unpublished"}.`, "success");
+        await loadPastEventsAdmin();
+      } else if (action === "delete") {
+        if (!confirm(`Delete “${ev.title}” and all its portfolio photos? This cannot be undone.`)) return;
+        button.disabled = true;
+        try {
+          const { data: photos, error: photoError } = await supabaseClient.from("past_event_photos").select("id,storage_path").eq("event_id", eventId);
+          if (photoError) throw photoError;
+          const paths = (photos || []).map(p => p.storage_path);
+          if (paths.length) {
+            const { error: storageError } = await supabaseClient.storage.from(EVENT_PHOTO_BUCKET).remove(paths);
+            if (storageError) throw storageError;
+          }
+          const { error } = await supabaseClient.from("past_events").delete().eq("id", eventId);
+          if (error) throw error;
+          showMessage(pastEventMessage, "Event and photos deleted.", "success");
+          await loadPastEventsAdmin();
+        } catch (error) {
+          showMessage(pastEventMessage, error?.message || "Could not delete event.", "error");
+          button.disabled = false;
+        }
+      } else if (action === "remove-photo") {
+        const photoId = button.dataset.photoId;
+        const { data: photo, error: lookupError } = await supabaseClient.from("past_event_photos").select("id,storage_path").eq("id", photoId).single();
+        if (lookupError) { showMessage(pastEventMessage, lookupError.message, "error"); return; }
+        if (!confirm("Remove this photo from the event portfolio?")) return;
+        button.disabled = true;
+        const { error: storageError } = await supabaseClient.storage.from(EVENT_PHOTO_BUCKET).remove([photo.storage_path]);
+        if (storageError) { showMessage(pastEventMessage, storageError.message, "error"); button.disabled = false; return; }
+        const { error } = await supabaseClient.from("past_event_photos").delete().eq("id", photoId);
+        if (error) showMessage(pastEventMessage, error.message, "error");
+        else showMessage(pastEventMessage, "Photo removed.", "success");
+        await loadPastEventsAdmin();
+      }
+    });
+
+    pastEventList.addEventListener("change", async function(event) {
+      const input = event.target.closest("input[data-event-upload]");
+      if (!input || !input.files?.length) return;
+      const eventId = input.dataset.eventUpload;
+      const ev = cachedPastEvents.find(item => item.id === eventId);
+      if (!ev) return;
+      input.disabled = true;
+      showMessage(pastEventMessage, `Uploading photos for ${ev.title}...`, "success");
+      try {
+        const result = await uploadPastEventPhotos(eventId, input.files);
+        if (result.errors.length) showMessage(pastEventMessage, `Uploaded ${result.uploaded} photo(s). Issues: ${result.errors.join("; ")}`, "error");
+        else showMessage(pastEventMessage, `Uploaded ${result.uploaded} photo(s) to ${ev.title}.`, "success");
+        await loadPastEventsAdmin();
+      } catch (error) {
+        showMessage(pastEventMessage, error?.message || "Upload failed.", "error");
+      } finally {
+        input.disabled = false;
+      }
+    });
 
     /* =====================================================
        AUTH STATE

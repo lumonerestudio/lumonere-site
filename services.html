@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Explore Lumonere Studio photo products, custom layouts, and event photobooth booking.">
+  <link rel="stylesheet" href="style.css">
+  <title>Our Services | Lumonere Studio</title>
+  <style>
+    .service-section-title { margin:28px 0 8px; text-align:left; font-size:18px; font-weight:500; letter-spacing:-.02em; }
+    .service-section-intro { margin:0 0 15px; color:var(--muted); text-align:left; font-size:12px; line-height:1.65; }
+    .product-grid { display:grid; grid-template-columns:1fr; gap:12px; margin-top:18px; text-align:left; }
+    .product-card { display:flex; flex-direction:column; padding:17px; border:1px solid rgba(255,255,255,.11); border-radius:17px; background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.014)); transition:border-color .2s ease,transform .2s ease; }
+    .product-card:hover { border-color:rgba(215,183,123,.42); transform:translateY(-2px); }
+    .product-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .product-badge { color:var(--gold); font-size:9px; letter-spacing:.14em; font-weight:800; text-transform:uppercase; }
+    .product-price { color:var(--gold); font-family:Georgia,serif; font-size:25px; white-space:nowrap; }
+    .product-card h3 { margin:8px 0 7px; font-size:16px; line-height:1.45; }
+    .product-card p { margin:0; color:var(--muted); font-size:12px; line-height:1.7; }
+    .product-details { margin:12px 0 0; color:rgba(247,244,239,.7); font-size:11px; line-height:1.7; }
+    .product-details summary { cursor:pointer; color:var(--gold); font-weight:700; }
+    .product-card .feature-button { margin-top:auto; width:100%; }
+    .product-card .product-cta { margin-top:16px; }
+    .service-highlight { text-align:left; padding:20px; }
+    .service-highlight h2 { margin:7px 0 8px; }
+    .service-bullets { margin:13px 0 0; padding-left:18px; color:var(--muted); font-size:12px; line-height:1.9; }
+    .booking-form { display:grid; grid-template-columns:1fr; gap:12px; margin-top:19px; text-align:left; }
+    .booking-field label { display:block; margin-bottom:6px; color:rgba(247,244,239,.75); font-size:11px; font-weight:700; letter-spacing:.05em; }
+    .booking-field input,.booking-field select,.booking-field textarea { width:100%; min-height:45px; padding:12px 13px; border:1px solid rgba(255,255,255,.13); border-radius:10px; background:#111; color:var(--text); font:inherit; font-size:13px; }
+    .booking-field textarea { min-height:95px; resize:vertical; }
+    .booking-field input:focus,.booking-field select:focus,.booking-field textarea:focus { outline:none; border-color:rgba(215,183,123,.65); }
+    .booking-message { min-height:18px; color:var(--muted); font-size:11px; line-height:1.6; }
+    .booking-footnote { margin-top:13px !important; font-size:10px !important; }
+    @media(min-width:520px) { .product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .booking-form { grid-template-columns:1fr 1fr; } .booking-field.full { grid-column:1 / -1; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-label="Lumonere Studio"><a class="hero-link" href="https://www.facebook.com/lumonerestudio" target="_blank" rel="noopener noreferrer" aria-label="Visit Lumonere Studio on Facebook"><img src="assets/lumonere-hero.jpeg" alt="Lumonere Studio" class="hero-image"></a></section>
+    <nav class="site-nav" aria-label="Main navigation"><a class="site-nav-link" href="index.html">Home</a><a class="site-nav-link" href="past-events.html">Past Events</a><a class="site-nav-link is-active" href="services.html" aria-current="page">Our Services</a></nav>
+    <section class="feature-content">
+      <p class="eyebrow">MADE FOR YOUR MOMENTS</p>
+      <h1 class="feature-title">Our Services</h1>
+      <p class="feature-lead">From event photobooth experiences to keepsakes guests can take home, choose what fits your celebration—and contact us to plan the details.</p>
+
+      <section class="feature-panel service-highlight" aria-labelledby="event-photobooth-title">
+        <p class="eyebrow">EVENT BOOKING</p>
+        <h2 id="event-photobooth-title">Event Photobooth</h2>
+        <p>Bring a photo experience to birthdays, debut celebrations, school events, company gatherings, and other special occasions.</p>
+        <ul class="service-bullets"><li>Personalized photostrip layout for your event</li><li>Instant photo keepsakes for your guests</li><li>Digital photostrip access using a six-character code (where available)</li></ul>
+        <div class="feature-button-row"><a class="feature-button" href="#booking" data-select-interest="Event Photobooth Booking">CONTACT US TO BOOK</a><a class="feature-button secondary" href="https://www.facebook.com/lumonerestudio" target="_blank" rel="noopener noreferrer">MESSAGE ON FACEBOOK ↗</a></div>
+        <p class="booking-footnote">Event package pricing depends on the date, venue, setup, and duration. Message us for a quotation.</p>
+      </section>
+
+      <h2 class="service-section-title">Photo Products</h2>
+      <p class="service-section-intro">Choose a print option below. Tap “Product details” for a little more information, then select it to include it in your inquiry.</p>
+      <div class="product-grid" id="product-grid">
+        <article class="product-card" data-product="4R Photo Print with Grid">
+          <div class="product-top"><span class="product-badge">SET A · 4R</span><span class="product-price">₱99</span></div>
+          <h3>4×6 Photo Print with Grid</h3>
+          <p>A 4R print featuring a multi-photo grid layout—great for a photo keepsake.</p>
+          <details class="product-details"><summary>Product details</summary><p>Print size: 4×6 inches. Includes one printed grid design. Layout and photo count follow the selected template.</p></details>
+          <div class="product-cta"><button type="button" class="feature-button" data-select-interest="4R Photo Print with Grid — ₱99">ASK ABOUT THIS PRODUCT</button></div>
+        </article>
+        <article class="product-card" data-product="2x6 Photo Strips (2 pieces)">
+          <div class="product-top"><span class="product-badge">SET B · 2×6</span><span class="product-price">₱99</span></div>
+          <h3>2×6 Photo Strips — 2 Pieces</h3>
+          <p>Two matching photo strips so you can keep one and share one.</p>
+          <details class="product-details"><summary>Product details</summary><p>Strip size: 2×6 inches each. Includes two printed strips using the selected design.</p></details>
+          <div class="product-cta"><button type="button" class="feature-button" data-select-interest="2x6 Photo Strips (2 pieces) — ₱99">ASK ABOUT THIS PRODUCT</button></div>
+        </article>
+        <article class="product-card" data-product="2x6 Strip + Long Keychain">
+          <div class="product-top"><span class="product-badge">SET C · KEEPSAKE</span><span class="product-price">₱149</span></div>
+          <h3>Photo Strip + Long Keychain</h3>
+          <p>One 2×6 photo strip plus a long keychain version as an extra keepsake.</p>
+          <details class="product-details"><summary>Product details</summary><p>Includes one standard 2×6 strip and one long keychain version of the strip design.</p></details>
+          <div class="product-cta"><button type="button" class="feature-button" data-select-interest="2x6 Strip + Long Keychain — ₱149">ASK ABOUT THIS PRODUCT</button></div>
+        </article>
+        <article class="product-card" data-product="Custom Photo Layout">
+          <div class="product-top"><span class="product-badge">PERSONALIZED</span><span class="product-price">Inquire</span></div>
+          <h3>Custom Photo Layout</h3>
+          <p>A personalized design aligned with your event theme, colors, names, and date.</p>
+          <details class="product-details"><summary>Product details</summary><p>Share your theme, color palette, names, and event date so we can confirm the design and price.</p></details>
+          <div class="product-cta"><button type="button" class="feature-button" data-select-interest="Custom Photo Layout">ASK ABOUT THIS PRODUCT</button></div>
+        </article>
+      </div>
+
+      <section id="booking" class="feature-panel" aria-labelledby="booking-title">
+        <p class="eyebrow">LET’S MAKE IT MEMORABLE</p>
+        <h2 id="booking-title">Contact Us to Book</h2>
+        <p>Fill in the details below. Your inquiry will be prepared as an email to Lumonere Studio, and you can also message us on Facebook.</p>
+        <form id="booking-form" class="booking-form">
+          <div class="booking-field"><label for="booking-name">YOUR NAME *</label><input id="booking-name" name="name" type="text" maxlength="100" required placeholder="Your name"></div>
+          <div class="booking-field"><label for="booking-contact">CONTACT DETAILS *</label><input id="booking-contact" name="contact" type="text" maxlength="160" required placeholder="Email, phone, or Facebook name"></div>
+          <div class="booking-field"><label for="booking-interest">I’M INTERESTED IN *</label><select id="booking-interest" name="interest" required><option value="">Select a service or product</option><option>Event Photobooth Booking</option><option>4R Photo Print with Grid — ₱99</option><option>2x6 Photo Strips (2 pieces) — ₱99</option><option>2x6 Strip + Long Keychain — ₱149</option><option>Custom Photo Layout</option><option>Other inquiry</option></select></div>
+          <div class="booking-field"><label for="booking-event-type">EVENT TYPE</label><input id="booking-event-type" name="eventType" type="text" maxlength="120" placeholder="Birthday, debut, company event…"></div>
+          <div class="booking-field"><label for="booking-date">EVENT DATE</label><input id="booking-date" name="date" type="date"></div>
+          <div class="booking-field"><label for="booking-location">VENUE / LOCATION</label><input id="booking-location" name="location" type="text" maxlength="180" placeholder="City or venue"></div>
+          <div class="booking-field"><label for="booking-duration">DURATION / QUANTITY</label><input id="booking-duration" name="duration" type="text" maxlength="100" placeholder="e.g. 2 hours or 20 prints"></div>
+          <div class="booking-field full"><label for="booking-notes">MORE DETAILS</label><textarea id="booking-notes" name="notes" maxlength="1200" placeholder="Theme, estimated guests, preferred print format, or other questions."></textarea></div>
+          <div class="booking-field full"><button type="submit" class="feature-button" style="width:100%;cursor:pointer;">PREPARE EMAIL INQUIRY</button></div>
+          <div id="booking-message" class="booking-message full" role="status" aria-live="polite"></div>
+        </form>
+        <div class="feature-button-row"><a class="feature-button secondary" href="https://www.facebook.com/lumonerestudio" target="_blank" rel="noopener noreferrer">MESSAGE US ON FACEBOOK ↗</a></div>
+        <p class="booking-footnote">Prices shown are the product prices currently listed by Lumonere Studio. Event photobooth rental needs a separate quotation. The email button opens your default mail app; it does not send automatically.</p>
+      </section>
+    </section>
+    <footer class="feature-footer">© <span id="year"></span> Lumonere Studio · Making Your Moments Photo Worthy.</footer>
+  </main>
+  <script>
+    const interestSelect = document.getElementById("booking-interest");
+    document.querySelectorAll("[data-select-interest]").forEach(button => {
+      button.addEventListener("click", () => {
+        const interest = button.getAttribute("data-select-interest");
+        const options = Array.from(interestSelect.options);
+        const match = options.find(option => option.value === interest || option.textContent === interest);
+        if (match) interestSelect.value = match.value || match.textContent;
+        document.getElementById("booking").scrollIntoView({behavior:"smooth", block:"start"});
+        window.setTimeout(() => document.getElementById("booking-name").focus({preventScroll:true}), 350);
+      });
+    });
+    document.getElementById("booking-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const get = id => document.getElementById(id).value.trim();
+      const lines = [
+        "Lumonere Studio Inquiry", "", `Name: ${get("booking-name")}`, `Contact: ${get("booking-contact")}`,
+        `Interested in: ${get("booking-interest")}`, `Event type: ${get("booking-event-type") || "Not specified"}`,
+        `Event date: ${get("booking-date") || "Not specified"}`, `Venue / location: ${get("booking-location") || "Not specified"}`,
+        `Duration / quantity: ${get("booking-duration") || "Not specified"}`, "", `Additional details: ${get("booking-notes") || "None"}`
+      ];
+      const subject = `Lumonere Studio Inquiry — ${get("booking-interest")}`;
+      const mailto = `mailto:lumonerestudio@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+      document.getElementById("booking-message").textContent = "Your email app should open with the inquiry details. Please review and send the email. If no mail app opens, use the Facebook button instead.";
+      window.location.href = mailto;
+    });
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

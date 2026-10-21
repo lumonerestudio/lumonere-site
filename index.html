@@ -181,6 +181,13 @@
     </section>
 
 
+    <!-- MAIN NAVIGATION -->
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="site-nav-link is-active" href="index.html" aria-current="page">Home</a>
+      <a class="site-nav-link" href="past-events.html">Past Events</a>
+      <a class="site-nav-link" href="services.html">Our Services</a>
+    </nav>
+
     <!-- =========================
          CONTENT
     ========================= -->
@@ -208,9 +215,9 @@
 
         <div class="albums-heading">
           <p class="eyebrow">YOUR MEMORIES</p>
-          <h2 id="customer-albums-title">YOUR PHOTOSTRIP</h2>
+          <h2 id="customer-albums-title">FIND YOUR PHOTOSTRIP</h2>
           <p class="albums-subtitle">
-            Enter the 6-character code printed on your photostrip to view and download your image.
+            Enter the six-character code printed on your photostrip to find and save your photo.
           </p>
         </div>
 
@@ -221,10 +228,11 @@
             class="album-code-input"
             type="text"
             inputmode="text"
+            minlength="6"
             maxlength="6"
             pattern="[A-Za-z0-9]{6}"
             placeholder="Enter 6-character code"
-            aria-label="Enter your 6-character photostrip code"
+            aria-label="Enter your six-character photostrip code"
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
@@ -235,7 +243,7 @@
             class="album-code-button"
             type="submit"
           >
-            VIEW MY PHOTOSTRIP
+            FIND MY PHOTOSTRIP
           </button>
 
           <div
@@ -248,7 +256,7 @@
         </form>
 
         <p class="album-access-note">
-          Each code opens one photostrip only—not the full event album.
+          You can also scan the QR code provided by Lumonere Studio.
         </p>
 
       </section>
@@ -615,24 +623,18 @@
 
 
   <!-- =========================
-       PHOTOSTRIP CODE LOOKUP
+       CUSTOMER PHOTOSTRIP ROUTING
   ========================= -->
 
   <script>
-    const albumAccessForm =
-      document.getElementById("album-access-form");
+    "use strict";
 
-    const albumCodeInput =
-      document.getElementById("album-code-input");
-
-    const albumAccessError =
-      document.getElementById("album-access-error");
+    const albumAccessForm = document.getElementById("album-access-form");
+    const albumCodeInput = document.getElementById("album-code-input");
+    const albumAccessError = document.getElementById("album-access-error");
 
     albumCodeInput.addEventListener("input", function () {
-      this.value = this.value
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
-        .slice(0, 6);
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
       albumAccessError.textContent = "";
     });
 
@@ -643,14 +645,12 @@
       albumAccessError.textContent = "";
 
       if (!/^[A-Z0-9]{6}$/.test(code)) {
-        albumAccessError.textContent =
-          "Please enter the 6-character code printed on your photostrip.";
+        albumAccessError.textContent = "Please enter the 6-character code printed on your photostrip.";
         albumCodeInput.focus();
         return;
       }
 
-      window.location.href =
-        "photostrip.html?code=" + encodeURIComponent(code);
+      window.location.href = "photostrip.html?code=" + encodeURIComponent(code);
     });
   </script>
 
