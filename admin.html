@@ -778,6 +778,14 @@
        RESPONSIVE
     ========================= */
 
+
+    /* Photostrip management */
+    .strip-help{color:rgba(255,255,255,.55);font-size:13px;line-height:1.5;margin:-7px 0 18px}
+    .strip-list{display:grid;gap:10px}.strip-card{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.025)}
+    .strip-code{font-size:18px;font-weight:700;letter-spacing:2px}.strip-details{color:rgba(255,255,255,.5);font-size:12px;margin-top:5px;overflow-wrap:anywhere}.strip-actions{display:flex;flex-wrap:wrap;gap:7px}
+    .field select{width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#171717;color:#fff;outline:none}
+    @media(max-width:600px){.strip-card{align-items:flex-start;flex-direction:column}.strip-actions{width:100%}}
+
     @media (max-width: 750px) {
 
       .dashboard-header {
@@ -1165,6 +1173,26 @@
     </section>
 
 
+
+    <!-- PHOTOSTRIP MANAGEMENT -->
+    <section class="panel" id="photostrip-panel">
+      <h2 class="panel-title">Photostrip Management</h2>
+      <p class="strip-help">Register one photostrip image for a selected gallery. Customers using the code will receive only that image, not the full event album.</p>
+      <div id="strip-message" class="message"></div>
+      <form id="strip-form">
+        <div class="form-grid">
+          <div class="field"><label for="strip-gallery">Gallery / Event</label><select id="strip-gallery" required><option value="">Loading galleries…</option></select></div>
+          <div class="field"><label for="strip-code">Photostrip Code (6 characters)</label><input id="strip-code" type="text" minlength="6" maxlength="6" pattern="[A-Za-z0-9]{6}" placeholder="TS7KQ9" required autocomplete="off"></div>
+          <div class="field full"><label for="strip-drive-id">Google Drive Image File ID</label><input id="strip-drive-id" type="text" placeholder="Paste the ID from the Drive file URL" required autocomplete="off"><small style="display:block;margin-top:7px;color:rgba(255,255,255,.4);font-size:11px;">From drive.google.com/file/d/FILE_ID/view, copy only FILE_ID. Ensure the image is shared with the configured service account.</small></div>
+          <div class="field"><label for="strip-expires">Optional expiration date/time</label><input id="strip-expires" type="datetime-local"></div>
+        </div>
+        <div class="form-actions"><button id="strip-save-button" class="button button-primary" type="submit">Register Photostrip</button><button id="strip-reset-button" class="button button-secondary" type="button">Clear Form</button></div>
+      </form>
+      <div style="height:1px;background:rgba(255,255,255,.08);margin:24px 0;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;"><h3 style="margin:0;font-size:16px;">Registered Photostrips</h3><button id="strip-refresh-button" class="button button-secondary" type="button">Refresh List</button></div>
+      <div id="strip-list" class="strip-list"><div class="loading">Sign in to load photostrips.</div></div>
+    </section>
+
     <!-- GALLERIES -->
 
     <section class="panel">
@@ -1304,6 +1332,8 @@
 
     let deletingId =
       null;
+
+    let cachedGalleries = [];
 
 
     /* =====================================================
@@ -1542,6 +1572,7 @@
 
 
       loadGalleries();
+      loadPhotostrips();
 
     }
 
@@ -1740,6 +1771,9 @@
 
       }
 
+
+      cachedGalleries = data || [];
+      populateStripGalleryOptions();
 
       if (
         !data ||
@@ -2641,6 +2675,67 @@
 
     }
 
+
+    /* PHOTOSTRIP MANAGEMENT — all privileged operations go through an authenticated Edge Function. */
+    const stripForm = document.getElementById("strip-form");
+    const stripGallery = document.getElementById("strip-gallery");
+    const stripCode = document.getElementById("strip-code");
+    const stripDriveId = document.getElementById("strip-drive-id");
+    const stripExpires = document.getElementById("strip-expires");
+    const stripMessage = document.getElementById("strip-message");
+    const stripList = document.getElementById("strip-list");
+    const stripSaveButton = document.getElementById("strip-save-button");
+
+    function populateStripGalleryOptions() {
+      const previous = stripGallery.value;
+      stripGallery.replaceChildren();
+      const first = document.createElement("option"); first.value = ""; first.textContent = "Select a gallery"; stripGallery.appendChild(first);
+      cachedGalleries.forEach(g => { const o = document.createElement("option"); o.value = String(g.id); o.textContent = `${g.client_name || "Unnamed Client"} — ${g.event_name || "Unnamed Event"} (${g.gallery_code || "No code"})`; stripGallery.appendChild(o); });
+      if (previous && cachedGalleries.some(g => String(g.id) === previous)) stripGallery.value = previous;
+    }
+    async function callPhotostripAdmin(action, payload = {}) {
+      const {data:s, error:e} = await supabaseClient.auth.getSession();
+      if (e || !s?.session?.access_token) throw new Error("Please sign in again before managing photostrips.");
+      const r = await fetch(SUPABASE_URL + "/functions/v1/admin-manage-photostrips", {method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+s.session.access_token,"apikey":SUPABASE_PUBLISHABLE_KEY}, body:JSON.stringify({action,...payload})});
+      const result = await r.json().catch(()=>({}));
+      if (!r.ok) throw new Error(result?.error || "Photostrip management request failed.");
+      return result;
+    }
+    async function loadPhotostrips() {
+      stripList.innerHTML = '<div class="loading">Loading photostrips…</div>';
+      try { const result = await callPhotostripAdmin("list"); renderPhotostrips(result.photostrips || []); }
+      catch (error) { console.error("Load photostrips error:",error); stripList.innerHTML='<div class="empty">Unable to load photostrips. Check the Edge Function deployment.</div>'; showMessage(stripMessage,error?.message||"Unable to load photostrips.","error"); }
+    }
+    function renderPhotostrips(items) {
+      stripList.replaceChildren();
+      if (!items.length) { stripList.innerHTML='<div class="empty">No photostrips registered yet.</div>'; return; }
+      items.forEach(item=>{
+        const card=document.createElement("div"); card.className="strip-card";
+        const details=document.createElement("div"); details.style.minWidth="0";
+        const code=document.createElement("div"); code.className="strip-code"; code.textContent=item.code;
+        const info=document.createElement("div"); info.className="strip-details";
+        const g=cachedGalleries.find(x=>String(x.id)===String(item.gallery_id));
+        info.textContent=`${g?`${g.client_name||"Unnamed Client"} — ${g.event_name||"Unnamed Event"}`:`Gallery ID: ${item.gallery_id}`} · ${item.active?"Active":"Inactive"}${item.expires_at?" · Expires "+formatDateTime(item.expires_at):""}`;
+        details.append(code,info); const actions=document.createElement("div"); actions.className="strip-actions";
+        const copy=document.createElement("button"); copy.type="button"; copy.className="small-button button-secondary"; copy.textContent="Copy Customer Link";
+        copy.addEventListener("click",async()=>{const link=GALLERY_BASE_URL+"photostrip.html?code="+encodeURIComponent(item.code);try{await navigator.clipboard.writeText(link);copy.textContent="Copied!";setTimeout(()=>copy.textContent="Copy Customer Link",1400);}catch(_){window.prompt("Copy this customer link:",link);}});
+        const toggle=document.createElement("button"); toggle.type="button"; toggle.className="small-button "+(item.active?"button-danger":"button-success"); toggle.textContent=item.active?"Deactivate":"Activate";
+        toggle.addEventListener("click",async()=>{toggle.disabled=true;try{await callPhotostripAdmin("toggle",{id:item.id,active:!item.active});await loadPhotostrips();}catch(error){alert(error?.message||"Unable to update photostrip.");toggle.disabled=false;}});
+        actions.append(copy,toggle);card.append(details,actions);stripList.appendChild(card);
+      });
+    }
+    stripCode.addEventListener("input",()=>{stripCode.value=stripCode.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);});
+    stripForm.addEventListener("submit",async event=>{
+      event.preventDefault(); hideMessage(stripMessage);
+      const gallery_id=Number(stripGallery.value), code=stripCode.value.trim().toUpperCase(), drive_file_id=stripDriveId.value.trim();
+      if(!gallery_id||!/^[A-Z0-9]{6}$/.test(code)||!/^[A-Za-z0-9_-]{10,}$/.test(drive_file_id)){showMessage(stripMessage,"Select a gallery, enter a 6-character code, and provide a valid Google Drive file ID.","error");return;}
+      stripSaveButton.disabled=true;stripSaveButton.textContent="Registering…";
+      try{const expires_at=stripExpires.value?new Date(stripExpires.value).toISOString():null;await callPhotostripAdmin("create",{code,gallery_id,drive_file_id,expires_at});showMessage(stripMessage,"Photostrip registered successfully.","success");stripForm.reset();await loadPhotostrips();}
+      catch(error){console.error("Register photostrip error:",error);showMessage(stripMessage,error?.message||"Unable to register photostrip.","error");}
+      finally{stripSaveButton.disabled=false;stripSaveButton.textContent="Register Photostrip";}
+    });
+    document.getElementById("strip-reset-button").addEventListener("click",()=>{stripForm.reset();hideMessage(stripMessage);});
+    document.getElementById("strip-refresh-button").addEventListener("click",loadPhotostrips);
 
     /* =====================================================
        QR CODE
