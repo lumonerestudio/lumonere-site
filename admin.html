@@ -1190,7 +1190,7 @@
 
     <footer class="gallery-footer">
 
-      Making Your Moments Photo Worthy.
+      Making Your Moments Photo-Worthy.
 
     </footer>
 
@@ -1287,6 +1287,9 @@
 
     const GALLERY_PAGE =
       "gallery.html";
+
+    const GALLERY_BASE_URL =
+      "https://lumonerestudio.github.io/lumonere-site/";
 
 
     /* =====================================================
@@ -2021,6 +2024,71 @@
       );
 
 
+      /* DOWNLOAD PRIVATE ALBUM ZIP */
+
+      const zipButton =
+        document.createElement("button");
+
+      zipButton.className =
+        "small-button button-primary";
+
+      zipButton.textContent = "Download ZIP";
+      zipButton.title = "Download all photos in this album as a ZIP";
+
+      zipButton.addEventListener("click", async function() {
+        const originalText = zipButton.textContent;
+        zipButton.disabled = true;
+        zipButton.textContent = "Preparing ZIP…";
+
+        try {
+          const { data: sessionData, error: sessionError } =
+            await supabaseClient.auth.getSession();
+
+          if (sessionError || !sessionData?.session?.access_token) {
+            throw new Error("Please sign in again before downloading.");
+          }
+
+          const response = await fetch(
+            SUPABASE_URL + "/functions/v1/admin-download-album",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + sessionData.session.access_token,
+                "apikey": SUPABASE_PUBLISHABLE_KEY
+              },
+              body: JSON.stringify({ gallery_id: gallery.id })
+            }
+          );
+
+          if (!response.ok) {
+            let message = "Album ZIP download failed.";
+            try {
+              const details = await response.json();
+              if (details?.error) message = details.error;
+            } catch (_) {}
+            throw new Error(message);
+          }
+
+          const blob = await response.blob();
+          if (!blob.size) throw new Error("The ZIP file was empty.");
+
+          const objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          link.download = safeZipFilename(gallery.event_name || gallery.client_name || "Lumonere-Album") + ".zip";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+        } catch (error) {
+          alert(error?.message || "Could not download this album ZIP.");
+        } finally {
+          zipButton.disabled = false;
+          zipButton.textContent = originalText;
+        }
+      });
+
       /* OPEN */
 
       const openButton =
@@ -2182,6 +2250,15 @@
 
       return card;
 
+    }
+
+
+    function safeZipFilename(value) {
+      return String(value || "Lumonere-Album")
+        .normalize("NFKD")
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "Lumonere-Album";
     }
 
 
@@ -3010,18 +3087,9 @@
       code
     ) {
 
-      const base =
-        window.location.href
-          .split("?")[0]
-          .split("#")[0]
-          .replace(
-            "admin.html",
-            GALLERY_PAGE
-          );
-
-
       return (
-        base +
+        GALLERY_BASE_URL +
+        GALLERY_PAGE +
         "?code=" +
         encodeURIComponent(
           code
